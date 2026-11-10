@@ -114,8 +114,8 @@ pre {
   top: 0;
   z-index: 50;
   height: var(--nav);
-  background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #000000;
+  border-bottom: 1px solid var(--line);
 }
 
 .topbar-inner {
@@ -219,8 +219,8 @@ pre {
    TRUTH STRIP
    ========================================================================= */
 .truth-strip {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: transparent;
+  border-bottom: 1px solid var(--line);
+  background: #000000;
   padding-block: 8px;
   font-size: 12.5px;
   color: var(--ink-2);
@@ -501,8 +501,7 @@ pre {
    ========================================================================= */
 .hero-editorial-section {
   position: relative;
-  margin-top: -108px;
-  padding-top: 156px;
+  padding-top: 64px;
   padding-bottom: 72px;
 }
 
@@ -2295,7 +2294,7 @@ pre {
 
 .hero-mountain-backdrop {
   top: 0;
-  height: 920px;
+  height: 780px;
 }
 
 .card-mountain-backdrop {

@@ -29,22 +29,21 @@ export function MountainBackdrop({
         style={{ height: heightStyle }}
       >
         <defs>
-          {/* 1. Luminous Warm Champagne Sky Ambient Gradient */}
+          {/* 1. Deep Atmospheric Warm Bronze / Amber Sky Ambient Gradient (High Text Contrast) */}
           <linearGradient id="cointrixWarmSky" x1="50%" y1="0%" x2="50%" y2="100%">
-            <stop offset="0%" stopColor="#dfd6cc" stopOpacity="1" />
-            <stop offset="16%" stopColor="#c2b3a3" stopOpacity="0.96" />
-            <stop offset="34%" stopColor="#8c7a6b" stopOpacity="0.88" />
-            <stop offset="54%" stopColor="#4c3d32" stopOpacity="0.72" />
-            <stop offset="74%" stopColor="#1e1612" stopOpacity="0.45" />
-            <stop offset="90%" stopColor="#080605" stopOpacity="0.2" />
+            <stop offset="0%" stopColor="#2e241c" stopOpacity="0.95" />
+            <stop offset="20%" stopColor="#443427" stopOpacity="0.9" />
+            <stop offset="42%" stopColor="#5a4534" stopOpacity="0.82" />
+            <stop offset="68%" stopColor="#281e16" stopOpacity="0.6" />
+            <stop offset="85%" stopColor="#100c08" stopOpacity="0.3" />
             <stop offset="100%" stopColor="#000000" stopOpacity="0" />
           </linearGradient>
 
-          {/* 2. Top Horizon Flare / Diffused Light Aura */}
-          <radialGradient id="horizonAura" cx="50%" cy="0%" r="70%">
-            <stop offset="0%" stopColor="#f7eee4" stopOpacity="0.5" />
-            <stop offset="30%" stopColor="#cbbbae" stopOpacity="0.32" />
-            <stop offset="65%" stopColor="#5a493c" stopOpacity="0.14" />
+          {/* 2. Top Horizon Flare / Warm Golden Diffused Aura */}
+          <radialGradient id="horizonAura" cx="50%" cy="30%" r="65%">
+            <stop offset="0%" stopColor="#8c6a4e" stopOpacity="0.45" />
+            <stop offset="35%" stopColor="#553f2e" stopOpacity="0.25" />
+            <stop offset="70%" stopColor="#221811" stopOpacity="0.1" />
             <stop offset="100%" stopColor="#000000" stopOpacity="0" />
           </radialGradient>
 
@@ -117,16 +116,16 @@ export function MountainBackdrop({
         <path
           d="M 0 210 L 55 185 L 110 200 L 175 145 L 245 185 L 320 160 L 410 205 L 500 178 L 590 215 L 680 185 L 770 218 L 860 175 L 945 205 L 1030 152 L 1115 190 L 1205 145 L 1290 180 L 1370 155 L 1440 185 L 1440 520 L 0 520 Z"
           fill="url(#ridgeDistantGrad)"
-          stroke="rgba(245, 230, 215, 0.45)"
-          strokeWidth="1.2"
+          stroke="rgba(255, 225, 195, 0.6)"
+          strokeWidth="1.3"
         />
 
         {/* 3. Layer 2: Left High Alpine Massif (Slopes down from left peak towards center) */}
         <path
           d="M 0 240 L 45 210 L 105 230 L 180 160 L 255 205 L 335 175 L 430 225 L 525 200 L 630 260 L 730 305 L 750 520 L 0 520 Z"
           fill="url(#ridgeMidLeftGrad)"
-          stroke="rgba(255, 245, 230, 0.55)"
-          strokeWidth="1.4"
+          stroke="rgba(255, 235, 210, 0.8)"
+          strokeWidth="1.5"
         />
 
         {/* Left Mountain Shaded Slope Facet */}
@@ -143,8 +142,8 @@ export function MountainBackdrop({
         <path
           d="M 690 315 L 790 270 L 890 295 L 985 220 L 1080 255 L 1180 185 L 1270 225 L 1355 165 L 1440 200 L 1440 520 L 690 520 Z"
           fill="url(#ridgeMidRightGrad)"
-          stroke="rgba(255, 245, 230, 0.5)"
-          strokeWidth="1.3"
+          stroke="rgba(255, 235, 210, 0.75)"
+          strokeWidth="1.5"
         />
 
         {/* Right Mountain Shaded Slope Facet */}

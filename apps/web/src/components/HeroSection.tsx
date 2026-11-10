@@ -73,7 +73,7 @@ export function HeroSection({
   return (
     <section id="top" className="hero-editorial-section">
       {/* Soft Mountain Horizon Atmosphere (Exact Cointrix Image 1 Sky & Ridges) */}
-      <MountainBackdrop className="hero-mountain-backdrop" height={920} showSky={true} />
+      <MountainBackdrop className="hero-mountain-backdrop" height={780} showSky={true} />
 
       <div className="wrap text-center" style={{ position: 'relative', zIndex: 2 }}>
         {/* Eyebrow Tag Pill (Cointrix style) */}
