@@ -134,11 +134,11 @@ export function FooterSection() {
           <span>© Route402 Copyrights</span>
           <span className="num">2026</span>
         </div>
+      </div>
 
-        {/* Massive Watermark Word (Exact Cointrix Style) */}
-        <div className="footer-giant-watermark" aria-hidden="true">
-          Route402
-        </div>
+      {/* Massive Watermark Word (Exact Cointrix Image 4 Style) */}
+      <div className="footer-giant-watermark" aria-hidden="true">
+        Route402
       </div>
     </footer>
   );
