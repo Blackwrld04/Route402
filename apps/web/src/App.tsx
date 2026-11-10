@@ -20,7 +20,6 @@ import {
 import { CanvasGround } from './components/CanvasGround';
 import { ArchitectureDiagram } from './components/ArchitectureDiagram';
 import { TopNav } from './components/TopNav';
-import { TruthStrip } from './components/TruthStrip';
 import { HeroSection } from './components/HeroSection';
 import { PartnerLogos } from './components/PartnerLogos';
 import { StatsRibbon } from './components/StatsRibbon';
@@ -241,7 +240,13 @@ export function App() {
     [entries, selectedId],
   );
 
-  // Execute real 2-step HTTP 402 -> X-PAYMENT -> 200 OK flow
+  // Periodic background refresh for live testnet/sandbox state (silent background sync)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      void refreshData();
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [refreshData]);
   const handleExecuteX402 = async () => {
     if (!selected) return;
     setBusyAction('x402');
@@ -652,23 +657,17 @@ export function App() {
     <div className="app-shell">
       <CanvasGround />
 
-      {/* 1. Global Navigation Bar */}
+      {/* 1. Global Navigation Bar with Silent Background Sync Indicator */}
       <TopNav
         sourceMode={sourceMode}
         onSelectMode={setSourceMode}
         walletAccountId={walletAccountId}
         onToggleWallet={() => void handleWalletToggle()}
         onLaunchConsole={handleLaunchConsole}
-      />
-
-      {/* 2. Honest Network Mode Strip */}
-      <TruthStrip
-        sourceMode={sourceMode}
         loading={loading}
-        onRefresh={() => void refreshData()}
       />
 
-      {/* 3. Hero Section with Grand Editorial Serif & Floating Terminal Mockup (Image 1) */}
+      {/* 2. Hero Section with Grand Editorial Serif & Floating Terminal Mockup (Image 1) */}
       <HeroSection
         entries={entries}
         selectedId={selectedId}

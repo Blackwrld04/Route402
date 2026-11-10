@@ -1,4 +1,4 @@
-import { Wallet } from 'lucide-react';
+import { RefreshCw, Wallet } from 'lucide-react';
 import { Route402Mark } from './ChainIcons';
 import type { DataSourceMode } from '../types';
 
@@ -8,6 +8,7 @@ interface TopNavProps {
   walletAccountId: string | null;
   onToggleWallet: () => void;
   onLaunchConsole?: () => void;
+  loading?: boolean;
 }
 
 export function TopNav({
@@ -15,6 +16,7 @@ export function TopNav({
   onSelectMode,
   walletAccountId,
   onToggleWallet,
+  loading = false,
 }: TopNavProps) {
   return (
     <header className="topbar">
@@ -54,6 +56,9 @@ export function TopNav({
               aria-pressed={sourceMode === 'sandbox'}
               onClick={() => onSelectMode('sandbox')}
             >
+              {loading && sourceMode === 'sandbox' && (
+                <RefreshCw size={11} className="spin" style={{ marginRight: 5, verticalAlign: -1 }} />
+              )}
               Sandbox<span className="mode-long"> (simulated)</span>
             </button>
             <button
@@ -62,6 +67,9 @@ export function TopNav({
               aria-pressed={sourceMode === 'testnet'}
               onClick={() => onSelectMode('testnet')}
             >
+              {loading && sourceMode === 'testnet' && (
+                <RefreshCw size={11} className="spin" style={{ marginRight: 5, verticalAlign: -1 }} />
+              )}
               <span className="mode-long">Live NEAR </span>Testnet
             </button>
           </div>
