@@ -258,9 +258,9 @@ export function HeroSection({
                     <svg viewBox="0 0 540 180" width="100%" height="180" preserveAspectRatio="none">
                       <defs>
                         <linearGradient id="chartGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#f7f6f3" stopOpacity="0.25" />
-                          <stop offset="60%" stopColor="#f7f6f3" stopOpacity="0.04" />
-                          <stop offset="100%" stopColor="#f7f6f3" stopOpacity="0" />
+                          <stop offset="0%" stopColor="#00ec97" stopOpacity="0.28" />
+                          <stop offset="60%" stopColor="#00ec97" stopOpacity="0.06" />
+                          <stop offset="100%" stopColor="#00ec97" stopOpacity="0" />
                         </linearGradient>
                       </defs>
 
@@ -279,13 +279,13 @@ export function HeroSection({
                       <path
                         d="M 0 140 Q 60 130, 120 110 T 240 80 T 360 65 T 450 40 T 540 25"
                         fill="none"
-                        stroke="#f7f6f3"
+                        stroke="#00ec97"
                         strokeWidth="2"
                       />
 
                       {/* Pulse marker on current height */}
-                      <circle cx="540" cy="25" r="4.5" fill="#f7f6f3" />
-                      <circle cx="540" cy="25" r="9" fill="#f7f6f3" opacity="0.3" />
+                      <circle cx="540" cy="25" r="4.5" fill="#00ec97" />
+                      <circle cx="540" cy="25" r="9" fill="#00ec97" opacity="0.3" />
                     </svg>
 
                     {/* Chart Time Filter Tabs */}
