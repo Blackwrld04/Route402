@@ -30,10 +30,10 @@ export function TopNav({
             Endpoints
           </a>
           <a href="#security" className="nav-link">
-            Security (T-2)
+            Security&nbsp;(T-2)
           </a>
           <a href="#multirail" className="nav-link">
-            Multi-Rail
+            Multi&#8209;Rail
           </a>
           <a href="#architecture" className="nav-link">
             Architecture

@@ -160,7 +160,8 @@ pre {
 .topbar-nav {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 20px;
+  flex-shrink: 0;
 }
 
 .nav-link {
@@ -168,11 +169,22 @@ pre {
   text-decoration: none;
   font-size: 13.5px;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: color 140ms ease;
 }
 
 .nav-link:hover {
   color: var(--ink);
+}
+
+@media (max-width: 1120px) {
+  .topbar-nav {
+    gap: 14px;
+  }
+  .nav-link {
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 980px) {
