@@ -1,4 +1,4 @@
-import { Terminal, Wallet } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import { Route402Mark } from './ChainIcons';
 import type { DataSourceMode } from '../types';
 
@@ -7,7 +7,7 @@ interface TopNavProps {
   onSelectMode: (mode: DataSourceMode) => void;
   walletAccountId: string | null;
   onToggleWallet: () => void;
-  onLaunchConsole: () => void;
+  onLaunchConsole?: () => void;
 }
 
 export function TopNav({
@@ -15,7 +15,6 @@ export function TopNav({
   onSelectMode,
   walletAccountId,
   onToggleWallet,
-  onLaunchConsole,
 }: TopNavProps) {
   return (
     <header className="topbar">
@@ -23,18 +22,10 @@ export function TopNav({
         <a href="#top" className="brand">
           <Route402Mark size={24} />
           <span className="brand-name">Route402</span>
-          <span className="brand-sub">x402 · NEP-591</span>
         </a>
 
         {/* Center Nav Links */}
         <nav className="topbar-nav" aria-label="Main Navigation">
-          <button
-            type="button"
-            className="nav-link nav-btn-link"
-            onClick={onLaunchConsole}
-          >
-            Live Console ⚡
-          </button>
           <a href="#top" className="nav-link">
             Endpoints
           </a>
@@ -56,15 +47,6 @@ export function TopNav({
         </nav>
 
         <div className="nav-actions">
-          <button
-            type="button"
-            className="btn btn-sm btn-dark-charcoal nav-console-cta"
-            onClick={onLaunchConsole}
-          >
-            <Terminal size={12} />
-            <span>Launch Console</span>
-          </button>
-
           <div className="mode-switch" role="group" aria-label="Execution mode">
             <button
               type="button"

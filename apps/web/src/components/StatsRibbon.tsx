@@ -1,24 +1,11 @@
-import { Crown, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { Crown, Star, TrendingUp } from 'lucide-react';
 
 export function StatsRibbon() {
   return (
     <section className="section stats-ribbon-section">
       <div className="wrap text-center">
-        {/* Central Icon Cluster (Matching Image 1: 3 rounded badges with center champagne filled square) */}
-        <div className="icon-cluster">
-          <span className="cluster-icon">
-            <TrendingUp size={13} />
-          </span>
-          <span className="cluster-icon center-champagne-badge">
-            <span className="num" style={{ fontSize: 13, fontWeight: 700 }}>$</span>
-          </span>
-          <span className="cluster-icon">
-            <Sparkles size={13} />
-          </span>
-        </div>
-
         {/* Verification Pill */}
-        <div style={{ marginTop: 16 }}>
+        <div>
           <span className="pill-outline">
             <span style={{ color: 'var(--accent)' }}>✓</span>
             <span>Formally verified on NEAR Testnet</span>
@@ -62,7 +49,7 @@ export function StatsRibbon() {
             <div className="stat-number num">$0.00</div>
             <div className="stat-title">Intermediary Rent</div>
             <div className="stat-caption">
-              All payment value settles directly into the Account-NFT's own balance. Zero proxy skimming.
+              All payment value settles directly into the Account-NFT&apos;s own balance. Zero proxy skimming.
             </div>
           </div>
         </div>
