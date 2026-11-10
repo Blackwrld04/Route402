@@ -445,9 +445,9 @@ export function LiveConsolePage({
                   <svg viewBox="0 0 720 140" width="100%" height="140" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id="consoleChartGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#00EC97" stopOpacity="0.32" />
-                        <stop offset="70%" stopColor="#00EC97" stopOpacity="0.04" />
-                        <stop offset="100%" stopColor="#00EC97" stopOpacity="0" />
+                        <stop offset="0%" stopColor="#f7f6f3" stopOpacity="0.25" />
+                        <stop offset="70%" stopColor="#f7f6f3" stopOpacity="0.04" />
+                        <stop offset="100%" stopColor="#f7f6f3" stopOpacity="0" />
                       </linearGradient>
                     </defs>
 
@@ -464,13 +464,13 @@ export function LiveConsolePage({
                     <path
                       d="M 0 110 Q 90 95, 180 80 T 360 60 T 540 38 T 720 20"
                       fill="none"
-                      stroke="#00EC97"
+                      stroke="#f7f6f3"
                       strokeWidth="2.2"
                     />
 
                     {/* Pulse point */}
-                    <circle cx="720" cy="20" r="4.5" fill="#00EC97" />
-                    <circle cx="720" cy="20" r="10" fill="#00EC97" opacity="0.35" />
+                    <circle cx="720" cy="20" r="4.5" fill="#f7f6f3" />
+                    <circle cx="720" cy="20" r="10" fill="#f7f6f3" opacity="0.3" />
                   </svg>
                 </div>
               </div>

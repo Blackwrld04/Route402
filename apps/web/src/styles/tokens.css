@@ -518,12 +518,30 @@ pre {
 }
 
 .hero-mockup-frame {
+  --accent: #f7f6f3;
+  --accent-ink: #000000;
+  --accent-soft: rgba(247, 246, 243, 0.08);
+  --accent-border: rgba(247, 246, 243, 0.22);
   background: #000000;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.95);
   text-align: left;
+}
+
+.hero-mockup-frame .btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1px solid var(--accent);
+  font-weight: 700;
+}
+
+.hero-mockup-frame .btn-primary:hover:not(:disabled) {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .mockup-window-bar {
@@ -2505,9 +2523,9 @@ pre {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: rgba(0, 236, 151, 0.1);
+  background: var(--accent-soft);
   color: var(--accent);
-  border: 1px solid rgba(0, 236, 151, 0.25);
+  border: 1px solid var(--accent-border);
   font-size: 10.5px;
   font-weight: 600;
   padding: 2px 7px;
@@ -3137,12 +3155,30 @@ pre {
 }
 
 .console-fullscreen-app {
+  --accent: #f7f6f3;
+  --accent-ink: #000000;
+  --accent-soft: rgba(247, 246, 243, 0.08);
+  --accent-border: rgba(247, 246, 243, 0.22);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
   background: #000000;
   color: #ffffff;
+}
+
+.console-fullscreen-app .btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1px solid var(--accent);
+  font-weight: 700;
+}
+
+.console-fullscreen-app .btn-primary:hover:not(:disabled) {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  transform: translateY(-1px);
 }
 
 /* 1. Fullscreen Top Bar */
@@ -3207,10 +3243,10 @@ pre {
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--accent);
-  background: rgba(0, 236, 151, 0.1);
+  background: var(--accent-soft);
   padding: 2px 6px;
   border-radius: 3px;
-  border: 1px solid rgba(0, 236, 151, 0.2);
+  border: 1px solid var(--accent-border);
 }
 
 .console-spec-chip {
@@ -3425,7 +3461,7 @@ pre {
   font-family: var(--font-mono);
   font-size: 9.5px;
   color: var(--accent);
-  background: rgba(0, 236, 151, 0.08);
+  background: var(--accent-soft);
   padding: 1px 5px;
   border-radius: 3px;
 }
@@ -3509,9 +3545,9 @@ pre {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(0, 236, 151, 0.1);
+  background: var(--accent-soft);
   color: var(--accent);
-  border: 1px solid rgba(0, 236, 151, 0.25);
+  border: 1px solid var(--accent-border);
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
