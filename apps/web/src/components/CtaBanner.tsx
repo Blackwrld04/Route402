@@ -7,7 +7,7 @@ export function CtaBanner({ onScrollToMint }: { onScrollToMint: () => void }) {
       <div className="wrap">
         <div className="cta-banner-card">
           {/* Mountain Landscape Background Art (Exact Cointrix Image 4 Top) */}
-          <MountainBackdrop className="cta-mountain-backdrop" height={320} showSky={true} />
+          <MountainBackdrop className="cta-mountain-backdrop" height={380} showSky={true} />
 
           <div className="cta-banner-content" style={{ position: 'relative', zIndex: 2 }}>
             <h2 className="serif-display-title cta-title">

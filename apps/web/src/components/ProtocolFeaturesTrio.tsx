@@ -22,7 +22,7 @@ export function ProtocolFeaturesTrio() {
           {/* Card 1: Sub-Account Sovereignty (Floating White Card like Image 2 Card 1) */}
           <div className="trio-card">
             <div className="trio-card-preview">
-              <MountainBackdrop className="card-mountain-backdrop" height={220} showSky={true} />
+              <MountainBackdrop className="card-mountain-backdrop" height={270} showSky={true} />
               
               <div className="floating-white-card">
                 <div className="white-card-tag-green">
@@ -52,7 +52,7 @@ export function ProtocolFeaturesTrio() {
           {/* Card 2: Threat T-2 Anti-Drain (Floating Circular Donut Gauge like Image 2 Card 2) */}
           <div className="trio-card">
             <div className="trio-card-preview">
-              <MountainBackdrop className="card-mountain-backdrop" height={220} showSky={true} />
+              <MountainBackdrop className="card-mountain-backdrop" height={270} showSky={true} />
               
               <div className="floating-white-card">
                 <div className="donut-meter-wrap">
@@ -106,7 +106,7 @@ export function ProtocolFeaturesTrio() {
           {/* Card 3: Cross-Chain 1Click (Floating Asset List like Image 2 Card 3) */}
           <div className="trio-card">
             <div className="trio-card-preview">
-              <MountainBackdrop className="card-mountain-backdrop" height={220} showSky={true} />
+              <MountainBackdrop className="card-mountain-backdrop" height={270} showSky={true} />
               
               <div className="floating-white-card">
                 <div className="white-asset-row">
