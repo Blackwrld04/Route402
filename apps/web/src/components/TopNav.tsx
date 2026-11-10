@@ -1,4 +1,4 @@
-import { Wallet } from 'lucide-react';
+import { Terminal, Wallet } from 'lucide-react';
 import { Route402Mark } from './ChainIcons';
 import type { DataSourceMode } from '../types';
 
@@ -7,6 +7,7 @@ interface TopNavProps {
   onSelectMode: (mode: DataSourceMode) => void;
   walletAccountId: string | null;
   onToggleWallet: () => void;
+  onLaunchConsole: () => void;
 }
 
 export function TopNav({
@@ -14,6 +15,7 @@ export function TopNav({
   onSelectMode,
   walletAccountId,
   onToggleWallet,
+  onLaunchConsole,
 }: TopNavProps) {
   return (
     <header className="topbar">
@@ -26,6 +28,13 @@ export function TopNav({
 
         {/* Center Nav Links */}
         <nav className="topbar-nav" aria-label="Main Navigation">
+          <button
+            type="button"
+            className="nav-link nav-btn-link"
+            onClick={onLaunchConsole}
+          >
+            Live Console ⚡
+          </button>
           <a href="#top" className="nav-link">
             Endpoints
           </a>
@@ -47,6 +56,15 @@ export function TopNav({
         </nav>
 
         <div className="nav-actions">
+          <button
+            type="button"
+            className="btn btn-sm btn-dark-charcoal nav-console-cta"
+            onClick={onLaunchConsole}
+          >
+            <Terminal size={12} />
+            <span>Launch Console</span>
+          </button>
+
           <div className="mode-switch" role="group" aria-label="Execution mode">
             <button
               type="button"
@@ -73,12 +91,18 @@ export function TopNav({
             aria-label={
               walletAccountId
                 ? `Connected as ${walletAccountId}. Click to disconnect.`
-                : 'Connect a NEAR wallet'
+                : 'Connect NEAR wallet'
             }
             onClick={onToggleWallet}
           >
             <Wallet size={14} />
-            <span className="wallet-label">{walletAccountId ? walletAccountId : 'Connect wallet'}</span>
+            <span className="num">
+              {walletAccountId
+                ? walletAccountId.length > 18
+                  ? `${walletAccountId.slice(0, 8)}…${walletAccountId.slice(-6)}`
+                  : walletAccountId
+                : 'Connect wallet'}
+            </span>
           </button>
         </div>
       </div>

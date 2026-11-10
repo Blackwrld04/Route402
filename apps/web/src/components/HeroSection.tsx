@@ -47,6 +47,7 @@ interface HeroSectionProps {
   onExecuteX402: () => void;
   onQuoteOneClick: () => void;
   onScrollToSecurity: () => void;
+  onLaunchConsole: () => void;
 }
 
 export function HeroSection({
@@ -65,12 +66,9 @@ export function HeroSection({
   onExecuteX402,
   onQuoteOneClick,
   onScrollToSecurity,
+  onLaunchConsole,
 }: HeroSectionProps) {
   const current = selected ?? entries[0] ?? null;
-
-  const scrollToConsole = () => {
-    document.getElementById('live-console-mockup')?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <section id="top" className="hero-editorial-section">
@@ -102,11 +100,12 @@ export function HeroSection({
         <div className="hero-cta-group">
           <button
             type="button"
-            className="btn btn-dark-charcoal"
-            onClick={scrollToConsole}
+            className="btn btn-dark-charcoal btn-hero-primary-console"
+            onClick={onLaunchConsole}
           >
+            <Zap size={14} style={{ color: 'var(--accent)' }} />
             <span>Launch Live Console</span>
-            <ArrowDown size={14} />
+            <ArrowUpRight size={14} />
           </button>
           <button
             type="button"
@@ -130,11 +129,22 @@ export function HeroSection({
             <div className="mockup-title num">
               Route402 Sovereign Console · {current?.summary.token_id ?? 'alpha-signal.route402.testnet'}
             </div>
-            <div className="mockup-mode-indicator">
-              <span className={`status-dot ${sourceMode === 'sandbox' ? 'warn' : ''}`} />
-              <span className="num" style={{ fontSize: 11, color: 'var(--ink-2)' }}>
-                {sourceMode === 'sandbox' ? 'sandbox:0-keys' : 'finalized:rpc'}
-              </span>
+            <div className="mockup-mode-indicator" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline mockup-fullscreen-btn"
+                onClick={onLaunchConsole}
+                title="Open Dedicated Full-Screen Console Page"
+              >
+                <Maximize2 size={11} />
+                <span>Open Full-Screen Console ↗</span>
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className={`status-dot ${sourceMode === 'sandbox' ? 'warn' : ''}`} />
+                <span className="num" style={{ fontSize: 11, color: 'var(--ink-2)' }}>
+                  {sourceMode === 'sandbox' ? 'sandbox:0-keys' : 'finalized:rpc'}
+                </span>
+              </div>
             </div>
           </div>
 

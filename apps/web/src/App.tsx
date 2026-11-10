@@ -36,6 +36,7 @@ import { FooterSection } from './components/FooterSection';
 import { ToastNotice } from './components/ToastNotice';
 import { INITIAL_ENTRIES } from './fallback-data';
 import { TESTNET_DEPLOYMENT } from './testnet-manifest';
+import { LiveConsolePage } from './pages/LiveConsolePage';
 import type {
   DataSourceMode,
   EndpointEntry,
@@ -52,6 +53,15 @@ const CHAINS: OriginChainOption[] = [
 ];
 
 export function App() {
+  const [view, setView] = useState<'landing' | 'console'>(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.hash === '#console' || window.location.pathname === '/console'
+        ? 'console'
+        : 'landing';
+    }
+    return 'landing';
+  });
+
   const [sourceMode, setSourceMode] = useState<DataSourceMode>('sandbox');
   const [entries, setEntries] = useState<EndpointEntry[]>(INITIAL_ENTRIES);
   const [selectedId, setSelectedId] = useState<string>(INITIAL_ENTRIES[0].summary.token_id);
@@ -574,6 +584,70 @@ export function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    const handleHash = () => {
+      setView(window.location.hash === '#console' ? 'console' : 'landing');
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  const handleLaunchConsole = () => {
+    window.location.hash = '#console';
+    setView('console');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const handleExitToLanding = () => {
+    window.location.hash = '';
+    setView('landing');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  if (view === 'console') {
+    return (
+      <div className="app-shell console-page-shell">
+        <LiveConsolePage
+          entries={entries}
+          selectedId={selectedId}
+          selected={selected}
+          loading={loading}
+          sourceMode={sourceMode}
+          busyAction={busyAction}
+          originChain={originChain}
+          chains={CHAINS}
+          quoteResult={quoteResult}
+          wireLog={wireLog}
+          walletAccountId={walletAccountId}
+          escrowBanner={escrowBanner}
+          mintSlug={mintSlug}
+          mintTitle={mintTitle}
+          mintCategory={mintCategory}
+          mintUpstream={mintUpstream}
+          mintPriceUsdc={mintPriceUsdc}
+          onSelectId={setSelectedId}
+          onSelectMode={setSourceMode}
+          onToggleWallet={() => void handleWalletToggle()}
+          onRefresh={() => void refreshData()}
+          onSelectOriginChain={setOriginChain}
+          onExecuteX402={() => void handleExecuteX402()}
+          onQuoteOneClick={() => void handleQuoteOneClick()}
+          onListForSale={() => void handleListForSale()}
+          onSellerDrainAttempt={() => void handleSellerDrainAttempt()}
+          onAtomicBuy={() => void handleAtomicBuy()}
+          onChangeSlug={setMintSlug}
+          onChangeTitle={setMintTitle}
+          onChangeCategory={setMintCategory}
+          onChangeUpstream={setMintUpstream}
+          onChangePriceUsdc={setMintPriceUsdc}
+          onSubmitMint={(e) => void handleMintEndpoint(e)}
+          onExitToLanding={handleExitToLanding}
+        />
+        <ToastNotice notice={notice} onDismiss={() => setNotice(null)} />
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell">
       <CanvasGround />
@@ -584,6 +658,7 @@ export function App() {
         onSelectMode={setSourceMode}
         walletAccountId={walletAccountId}
         onToggleWallet={() => void handleWalletToggle()}
+        onLaunchConsole={handleLaunchConsole}
       />
 
       {/* 2. Honest Network Mode Strip */}
@@ -610,6 +685,7 @@ export function App() {
         onExecuteX402={() => void handleExecuteX402()}
         onQuoteOneClick={() => void handleQuoteOneClick()}
         onScrollToSecurity={() => scrollToSection('security')}
+        onLaunchConsole={handleLaunchConsole}
       />
 
       {/* 4. Ecosystem & Partner Logos Bar (Image 1 lower) */}
