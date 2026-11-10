@@ -1,0 +1,37 @@
+{
+  "name": "route402",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Route402 — Cash-flowing x402 API & MCP endpoints as sharded NEAR sub-account NFTs (sharded-item-1.0.0 + NEAR Intents).",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "tsx scripts/demo.ts",
+    "start": "tsx scripts/demo.ts",
+    "demo": "tsx scripts/demo.ts",
+    "start:dry": "tsx scripts/demo.ts --mode dry",
+    "start:live": "tsx scripts/demo.ts --mode live",
+    "gateway": "npm --workspace @route402/x402-gateway run start",
+    "web:dev": "npm --workspace @route402/web run dev",
+    "web:build": "npm --workspace @route402/web run build",
+    "mcp": "npm --workspace @route402/agent-mcp run start",
+    "verify:testnet": "tsx scripts/verify-onchain.ts",
+    "deploy:testnet": "tsx scripts/deploy-testnet.ts",
+    "test": "vitest run",
+    "test:contracts": "bash scripts/test-contracts.sh",
+    "typecheck": "tsc -b packages/core packages/x402-gateway packages/agent-mcp && npm --workspace @route402/web run typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}
