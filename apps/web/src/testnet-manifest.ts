@@ -18,7 +18,7 @@ export interface TestnetDeploymentManifest {
  */
 export const TESTNET_DEPLOYMENT: TestnetDeploymentManifest = {
   network: 'testnet',
-  rpcUrl: 'https://test.rpc.fastnear.com',
+  rpcUrl: 'https://rpc.testnet.near.org',
   explorerBaseUrl: 'https://testnet.nearblocks.io',
   registryId: 'r402-reg-v1.testnet',
   usdcContractId: 'r402-usdc-v1.testnet',

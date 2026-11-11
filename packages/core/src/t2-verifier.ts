@@ -12,22 +12,67 @@ export interface NearRpcProvider {
  * `sharded-item-1.0.0` Tier-2 (T2) pair verification standard.
  */
 export class HttpNearRpcProvider implements NearRpcProvider {
-  constructor(public readonly rpcUrl: string = 'https://test.rpc.fastnear.com') {}
+  constructor(public readonly rpcUrl: string = 'https://rpc.testnet.near.org') {}
 
   private async rpc<T>(method: string, params: Record<string, unknown>): Promise<T> {
-    const res = await fetch(this.rpcUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method, params });
+    const isBrowser = typeof (globalThis as { window?: unknown }).window !== 'undefined';
+    if (isBrowser) {
+      const res = await fetch(this.rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      });
+      if (!res.ok) {
+        throw new Error(`NEAR RPC HTTP ${res.status}: ${await res.text()}`);
+      }
+      const json = (await res.json()) as { result?: T; error?: { message?: string; data?: unknown } };
+      if (json.error) {
+        throw new Error(`NEAR RPC Error: ${json.error.message ?? JSON.stringify(json.error)}`);
+      }
+      return json.result as T;
+    }
+
+    // Node.js runtime: use native https with family: 4 to reliably connect over IPv4
+    const https = await import('node:https');
+    return new Promise((resolve, reject) => {
+      const u = new URL(this.rpcUrl);
+      const req = https.request(
+        {
+          protocol: u.protocol,
+          hostname: u.hostname,
+          port: u.port || (u.protocol === 'https:' ? 443 : 80),
+          path: u.pathname + u.search,
+          method: 'POST',
+          family: 4,
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(body),
+          },
+        },
+        (res) => {
+          let text = '';
+          res.on('data', (c) => (text += c));
+          res.on('end', () => {
+            if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
+              return reject(new Error(`NEAR RPC HTTP ${res.statusCode}: ${text}`));
+            }
+            try {
+              const json = JSON.parse(text) as { result?: T; error?: { message?: string; data?: unknown } };
+              if (json.error) {
+                return reject(new Error(`NEAR RPC Error: ${json.error.message ?? JSON.stringify(json.error)}`));
+              }
+              resolve(json.result as T);
+            } catch (e) {
+              reject(e);
+            }
+          });
+        },
+      );
+      req.on('error', reject);
+      req.write(body);
+      req.end();
     });
-    if (!res.ok) {
-      throw new Error(`NEAR RPC HTTP ${res.status}: ${await res.text()}`);
-    }
-    const json = (await res.json()) as { result?: T; error?: { message?: string; data?: unknown } };
-    if (json.error) {
-      throw new Error(`NEAR RPC Error: ${json.error.message ?? JSON.stringify(json.error)}`);
-    }
-    return json.result as T;
   }
 
   async getFinalBlock(): Promise<{ height: number; hash: string }> {
