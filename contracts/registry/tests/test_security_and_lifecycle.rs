@@ -48,7 +48,7 @@ async fn create_funded_account(
 }
 
 #[tokio::test]
-async fn test_sharded_x402_nft_lifecycle_and_all_6_threat_vectors() -> testresult::TestResult<()> {
+async fn test_sharded_x402_nft_lifecycle_and_threat_vectors() -> testresult::TestResult<()> {
     let registry_wasm_path = cargo_near_build::build_with_cli(cargo_near_build::BuildOpts {
         no_abi: true,
         ..Default::default()

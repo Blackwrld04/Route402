@@ -264,6 +264,16 @@ export class SandboxChainMirror implements NearRpcProvider {
     }));
   }
 
+  /**
+   * Access keys for a mirrored vault. The sandbox mirror only ever models
+   * keyless NEP-591 global-contract vaults, so the key list is empty by
+   * construction — the same invariant the real Testnet vaults are checked
+   * against with `view_access_key_list`.
+   */
+  async viewAccessKeys(_accountId: string): Promise<unknown[]> {
+    return [];
+  }
+
   mintEndpoint(input: {
     slug: string;
     ownerId: string;
@@ -500,6 +510,25 @@ export class Route402StateEngine {
       accountId,
       pinnedCollectionId: this.registryId,
     });
+  }
+
+  /**
+   * Number of access keys on the endpoint's sub-account, read from the same
+   * provider that backs the T2 verification (real RPC in dry/live mode, the
+   * in-process mirror in demo mode). Returns `null` when the key list could
+   * not be read, so callers can distinguish "0 keys" from "unknown".
+   */
+  async getAccessKeyCount(accountId: string): Promise<number | null> {
+    try {
+      const provider = this.rpcProvider as NearRpcProvider & {
+        viewAccessKeys?: (id: string) => Promise<unknown[]>;
+      };
+      if (typeof provider.viewAccessKeys !== 'function') return null;
+      const keys = await provider.viewAccessKeys(accountId);
+      return Array.isArray(keys) ? keys.length : null;
+    } catch {
+      return null;
+    }
   }
 
   async getAllEndpoints(): Promise<Array<{ summary: VaultSummary; listing: MarketListing | null }>> {

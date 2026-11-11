@@ -92,6 +92,12 @@ export async function verifyT2ShardedItem(params: {
   pinnedCollectionId: string;
   maxRetries?: number;
   retryDelayMs?: number;
+  /**
+   * Optional pre-pinned finalized block. When supplied, the verifier reuses
+   * this exact block instead of fetching a fresh one, so every read (and every
+   * caller displaying the result) is coherent at a single block height.
+   */
+  pinnedBlock?: { height: number; hash: string };
 }): Promise<T2VerificationResult> {
   const {
     provider,
@@ -99,10 +105,15 @@ export async function verifyT2ShardedItem(params: {
     pinnedCollectionId,
     maxRetries = 2,
     retryDelayMs = 450,
+    pinnedBlock,
   } = params;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const finalBlock = await provider.getFinalBlock();
+    // The pinned block is used for the first attempt only. Retries deliberately
+    // re-read a fresh finalized block so a transient cross-receipt lag can
+    // still be resolved (same behaviour as before pinning was introduced).
+    const finalBlock =
+      attempt === 0 && pinnedBlock ? pinnedBlock : await provider.getFinalBlock();
     const [item, token, collSeq] = await Promise.all([
       provider.viewAtBlock<NftItemInfo>(accountId, 'nft_item_info', {}, finalBlock.height),
       provider.viewAtBlock<Nep171Token>(

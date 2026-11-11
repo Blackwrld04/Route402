@@ -164,6 +164,7 @@ export function createRoute402Gateway(cfg: GatewayConfig) {
           items.map(async (entry) => ({
             ...entry,
             t2: await engine.verifyEndpointT2(entry.summary.token_id),
+            accessKeyCount: await engine.getAccessKeyCount(entry.summary.token_id),
           })),
         );
         sendJson(res, 200, {

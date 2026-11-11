@@ -1,4 +1,4 @@
-import { ArrowUpRight, Github, Globe, Twitter } from 'lucide-react';
+import { ArrowUpRight, Globe } from 'lucide-react';
 import { Route402Mark } from './ChainIcons';
 import { TESTNET_DEPLOYMENT } from '../testnet-manifest';
 
@@ -86,27 +86,10 @@ export function FooterSection() {
               <span className="brand-name">Route402</span>
             </div>
             <p className="footer-bio">
-              Be the first to know about new cash-flowing endpoint listings, testnet upgrades, and NEAR hackathon milestones.
+              Open-source x402 gateway and sharded Account-NFT registry for cash-flowing NEAR
+              endpoints. Read-only Testnet preview by default; no signer is loaded.
             </p>
             <div className="footer-social-row">
-              <a
-                href="https://github.com/nearai/near-hackathon-prompt-examples"
-                target="_blank"
-                rel="noreferrer"
-                className="footer-social-btn"
-                aria-label="GitHub"
-              >
-                <Github size={15} />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noreferrer"
-                className="footer-social-btn"
-                aria-label="Twitter / X"
-              >
-                <Twitter size={15} />
-              </a>
               <a
                 href="https://near.org"
                 target="_blank"

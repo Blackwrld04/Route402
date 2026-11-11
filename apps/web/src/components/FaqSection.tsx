@@ -13,11 +13,11 @@ const FAQS: FaqItem[] = [
   },
   {
     q: 'How does Threat T-2 prevent sellers from draining the treasury mid-sale?',
-    a: 'When an endpoint is listed for sale, the vault atomically transitions to Frozen. In this state, inbound HTTP 402 revenue keeps settling normally, but all outward withdrawals (ft_transfer) are rejected by the contract. The buyer is cryptographically guaranteed that the treasury balance cannot be drained while they inspect or purchase the listing.',
+    a: 'When an endpoint is listed for sale, the vault atomically transitions to Frozen. In this state, inbound HTTP 402 revenue keeps settling normally, but all outward withdrawals (ft_transfer) are rejected by the contract. The contract enforces that the treasury balance cannot be drained while the buyer inspects or purchases the listing.',
   },
   {
     q: 'How does cross-chain 1Click swap settle into a keyless NEAR account?',
-    a: 'Through NEAR Intents 1Click, market-maker solvers observe the cross-chain deposit on Base, Solana, or Arbitrum, and front NEP-141 USDC directly into the target endpoint sub-account within ~4 seconds. The calling AI agent never needs a NEAR wallet or NEAR gas tokens.',
+    a: 'Through NEAR Intents 1Click, solvers quote a cross-chain route and deliver NEAR USDC to the recipient named in the quote. Route402 releases the upstream response only after the vault reports is_request_paid(request_id) onchain. The MCP client handles discovery and the 402 challenge; signing and submitting the payment remains with the caller or a facilitator.',
   },
   {
     q: 'What is NEP-591 and how does it enable Account-NFTs?',
@@ -25,7 +25,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: 'Can autonomous AI agents and MCP clients use Route402 without humans?',
-    a: 'Yes. Route402 provides an official Model Context Protocol (MCP) server (@route402/agent-mcp) and standard HTTP 402 client. When an agent receives an HTTP 402 Payment Required response, it parses the challenge, provides the X-PAYMENT header, and receives the upstream data automatically.',
+    a: 'Yes. Route402 provides a Model Context Protocol (MCP) server (@route402/agent-mcp) and an HTTP 402 client. The client parses the challenge and builds the X-PAYMENT envelope. For real Testnet settlement, pass a settleOnChain callback or facilitator; without one, the client produces a clearly labelled simulated proof for sandbox use.',
   },
 ];
 
@@ -45,10 +45,10 @@ export function FaqSection() {
             <div className="faq-viz-header">
               <span className="pill-outline">
                 <ShieldCheck size={12} style={{ color: 'var(--accent)' }} />
-                <span>Onchain Telemetry</span>
+                <span>Illustrative preview</span>
               </span>
               <span className="num" style={{ fontSize: 12, color: 'var(--ink-3)' }}>
-                Finalized Blocks
+                Decorative chart
               </span>
             </div>
 
@@ -82,30 +82,30 @@ export function FaqSection() {
 
               {/* Floating Crisp White Tooltips (Exact Cointrix Image 3 Style) */}
               <div className="faq-floating-white-chip chip-top-left">
-                <span className="white-chip-tag">RPC Verified</span>
+                <span className="white-chip-tag">Pinned-Block T2</span>
                 <div className="white-chip-val-row num">
-                  <strong>#188420100</strong>
-                  <span className="chip-delta-green">▲ 5.87%</span>
+                  <strong>✓ Pair check</strong>
+                  <span className="chip-delta-green">Read-only</span>
                 </div>
               </div>
 
               <div className="faq-floating-white-chip chip-mid-right">
-                <span className="white-chip-muted-date">10 Nov 2026</span>
-                <span className="white-chip-main num">$0.70 USDC</span>
+                <span className="white-chip-muted-date">Read-only RPC</span>
+                <span className="white-chip-main num">NEP-141 USDC</span>
               </div>
 
               <div className="faq-floating-white-chip chip-bottom-mid">
                 <span className="white-chip-tag">Zero Keys</span>
                 <div className="white-chip-val-row num">
                   <strong>keys: []</strong>
-                  <span className="chip-delta-green">▲ Valid</span>
+                  <span className="chip-delta-green">✓ Enforced</span>
                 </div>
               </div>
             </div>
 
             <div className="faq-viz-footer">
               <span>Dual-RPC Invariant Engine</span>
-              <span className="num" style={{ color: 'var(--accent)' }}>0.00ms latency</span>
+              <span className="num" style={{ color: 'var(--accent)' }}>Live data in console</span>
             </div>
           </div>
 

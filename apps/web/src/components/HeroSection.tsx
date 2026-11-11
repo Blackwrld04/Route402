@@ -79,7 +79,7 @@ export function HeroSection({
         {/* Eyebrow Tag Pill (Cointrix style) */}
         <div className="hero-tag-wrap">
           <span className="hero-pill-badge">
-            THE FIRST CASH-FLOWING ACCOUNT-NFT PLATFORM ON NEAR
+CASH-FLOWING ACCOUNT-NFT PLATFORM ON NEAR
           </span>
         </div>
 
@@ -208,9 +208,15 @@ export function HeroSection({
                     <div className="stage-title-wrap">
                       <div className="stage-symbol-row">
                         <span className="stage-asset-name">{current.summary.token_id}</span>
-                        <span className="stage-verified-badge" title="NEP-591 Keyless Sub-Account">
+                        <span className="stage-verified-badge" title="NEP-591 access-key state">
                           <CheckCircle2 size={13} style={{ color: 'var(--accent)' }} />
-                          <span>0-Keys</span>
+                          <span>
+                            {current.accessKeyCount === 0
+                              ? '0-Keys'
+                              : current.accessKeyCount === null
+                                ? 'Keys ?'
+                                : `${current.accessKeyCount} key(s)`}
+                          </span>
                         </span>
                         <span className="stage-category-chip">{current.summary.category}</span>
                       </div>
@@ -234,8 +240,12 @@ export function HeroSection({
                         <span className="stage-currency">USDC/call</span>
                       </div>
                       <div className="stage-delta-row num">
-                        <span className="delta-green">▲ +12.4% 24h</span>
-                        <span className="delta-timestamp">Nov 10, 2026 · 16:40 UTC</span>
+                        <span className="delta-green">
+                          {sourceMode === 'sandbox' ? 'Sandbox mirror' : 'Finalized Testnet state'}
+                        </span>
+                        <span className="delta-timestamp">
+                          T2 {current.t2.verdict} @ block #{current.t2.blockHeight}
+                        </span>
                       </div>
                     </div>
 
@@ -288,13 +298,9 @@ export function HeroSection({
                       <circle cx="540" cy="25" r="9" fill="#00ec97" opacity="0.3" />
                     </svg>
 
-                    {/* Chart Time Filter Tabs */}
+                    {/* Decorative preview, explicitly labeled so it is not read as live market data */}
                     <div className="stage-time-tabs">
-                      <span className="time-tab">1H</span>
-                      <span className="time-tab active">24H</span>
-                      <span className="time-tab">7D</span>
-                      <span className="time-tab">30D</span>
-                      <span className="time-tab">ALL</span>
+                      <span className="time-tab active">Illustrative preview</span>
                     </div>
                   </div>
                 </>
@@ -329,11 +335,13 @@ export function HeroSection({
               <div className="swap-input-card">
                 <div className="swap-card-label-row">
                   <span>Pay with cross-chain rail</span>
-                  <span className="num">Balance: $100.00</span>
+                  <span className="num">
+                    Vault: ${current ? formatUsdc(current.summary.vault_usdc_balance) : '—'}
+                  </span>
                 </div>
                 <div className="swap-value-row">
                   <span className="swap-amount num">
-                    ${current ? formatUsdc(current.summary.price_per_call_usdc) : '0.0400'}
+                    ${current ? formatUsdc(current.summary.price_per_call_usdc) : '0.0000'}
                   </span>
                   <div className="swap-pill-tag">
                     <ChainIcon chain={originChain} size={14} />
@@ -355,7 +363,7 @@ export function HeroSection({
                 </div>
                 <div className="swap-value-row">
                   <span className="swap-amount num" style={{ color: 'var(--accent)' }}>
-                    ${current ? formatUsdc(current.summary.price_per_call_usdc) : '0.0400'}
+                    ${current ? formatUsdc(current.summary.price_per_call_usdc) : '0.0000'}
                   </span>
                   <div className="swap-pill-tag">
                     <ChainIcon chain="near" size={14} />
@@ -379,8 +387,12 @@ export function HeroSection({
                   )}
                   <span>
                     {busyAction === 'x402'
-                      ? 'Executing 402 Settlement…'
-                      : 'Execute x402 Settlement ⚡'}
+                      ? sourceMode === 'sandbox'
+                        ? 'Executing 402 Settlement…'
+                        : 'Loading Read-Only Preview…'
+                      : sourceMode === 'sandbox'
+                        ? 'Execute x402 Settlement ⚡'
+                        : 'Preview x402 Challenge (Read-Only)'}
                   </span>
                 </button>
 
@@ -390,12 +402,14 @@ export function HeroSection({
                   disabled={busyAction !== null}
                   onClick={onQuoteOneClick}
                 >
-                  {busyAction === 'oneclick' ? (
+                  {busyAction === '1click' ? (
                     <Loader2 size={13} className="spin" />
                   ) : (
                     <ArrowDown size={13} />
                   )}
-                  <span>Fetch 1Click Solver Quote</span>
+                  <span>
+                    {busyAction === '1click' ? 'Fetching 1Click Quote…' : 'Fetch 1Click Solver Quote'}
+                  </span>
                 </button>
               </div>
 
@@ -407,8 +421,14 @@ export function HeroSection({
                     <span className="log-text">Challenge received</span>
                   </div>
                   <div className="log-row">
-                    <span className="log-badge status-200">200 OK</span>
-                    <span className="log-text">Settled in vault #{wireLog.receiptHeader?.receipt_id ? '✓' : '1'}</span>
+                    <span className={`log-badge ${wireLog.readOnly ? 'status-402' : 'status-200'}`}>
+                      {wireLog.readOnly ? 'PREVIEW' : `${wireLog.paidStatus} OK`}
+                    </span>
+                    <span className="log-text">
+                      {wireLog.readOnly
+                        ? 'Read-only Testnet preview — no payment submitted'
+                        : 'Settled in vault ✓'}
+                    </span>
                   </div>
                 </div>
               ) : (

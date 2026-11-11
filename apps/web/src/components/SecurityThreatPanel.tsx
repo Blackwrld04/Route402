@@ -31,7 +31,7 @@ export function SecurityThreatPanel({
       <div className="wrap">
         <p className="eyebrow">
           <ShieldCheck size={16} />
-          <span>Formally verified invariant guarantees</span>
+          <span>Contract-enforced invariant checks</span>
         </p>
         <h2 className="h2" style={{ marginBottom: 12 }}>
           Atomic escrow market &amp; anti-drain enforcement.{' '}
@@ -40,7 +40,7 @@ export function SecurityThreatPanel({
           </span>
         </h2>
         <p className="lead">
-          NEP-591 global contracts guarantee single-account ownership without proxy indirection.
+          NEP-591 global contracts enforce single-account ownership without proxy indirection.
           Inbound x402 revenue keeps settling into the account during listing, while outward
           transfers are strictly blocked until sale settlement or cancellation.
         </p>
@@ -73,7 +73,9 @@ export function SecurityThreatPanel({
                     <td>
                       {selected.accessKeyCount === null
                         ? 'Unavailable (RPC error)'
-                        : `keys: [] (${selected.accessKeyCount} keys)`}
+                        : selected.accessKeyCount === 0
+                          ? 'keys: [] (0 keys)'
+                          : `keys: ${selected.accessKeyCount}`}
                     </td>
                   </tr>
                   <tr>

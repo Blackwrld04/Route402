@@ -3381,6 +3381,30 @@ pre {
   gap: 6px;
 }
 
+.console-loading-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--ink-3);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.console-empty-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 18px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  color: var(--ink-3);
+  font-size: 12px;
+  text-align: center;
+}
+
 .console-vault-card {
   width: 100%;
   background: #000000;
@@ -4067,17 +4091,78 @@ pre {
 @media (max-width: 640px) {
   .console-top-bar {
     padding: 8px 12px;
+    gap: 8px;
+  }
+  .console-top-left {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    min-width: 0;
+    width: 100%;
+  }
+  .console-brand-cluster {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .console-spec-chip {
+    display: none;
+  }
+  .console-top-center {
+    order: 3;
+    width: 100%;
+  }
+  .console-status-pill {
+    width: 100%;
+    justify-content: center;
+    padding: 5px 10px;
+  }
+  .console-status-pill .num {
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+  .console-top-right {
+    order: 2;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
   }
   .console-main-pane {
     padding: 14px 12px;
+  }
+  .console-asset-header-card {
+    padding: 14px 12px;
+  }
+  .asset-header-top {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .asset-actions-toolbar {
+    flex-wrap: wrap;
   }
   .console-metric-strip {
     padding: 10px 12px;
   }
   .metric-box {
     flex: 1 1 100%;
+    min-width: 0;
+  }
+  .chart-header-row {
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .console-settlement-pane {
     padding: 16px 12px;
+  }
+  .console-sidebar-pane {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .console-settlement-pane {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .console-body-layout,
+  .console-main-pane {
+    overflow-x: hidden;
   }
 }

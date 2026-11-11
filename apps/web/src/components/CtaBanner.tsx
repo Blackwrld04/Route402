@@ -40,8 +40,8 @@ export function CtaBanner({ onScrollToMint }: { onScrollToMint: () => void }) {
               </div>
               <div className="cta-art-body">
                 <div className="cta-art-metric-row">
-                  <span className="cta-art-label">Vault Balance</span>
-                  <strong className="num" style={{ color: 'var(--accent)' }}>$1,428.50 USDC</strong>
+                  <span className="cta-art-label">Vault Treasury</span>
+                  <strong className="num" style={{ color: 'var(--accent)' }}>NEP-141 USDC</strong>
                 </div>
                 <div className="cta-art-metric-row">
                   <span className="cta-art-label">Access Keys</span>

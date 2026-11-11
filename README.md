@@ -5,7 +5,7 @@
 
 **Route402** turns every monetized API or Model Context Protocol (MCP) tool into a **tradeable, self-custodial NEAR sub-account NFT**.
 
-When a developer mints an endpoint on `r402-reg-v1.testnet`, the registry atomically creates a **keyless NEAR sub-account** (`<slug>.r402-reg-v1.testnet`, `keys: []`), binds an immutable **NEP-591 Global Contract** (`0.25 NEAR` per mint instead of `~2 NEAR`), and exposes an **`HTTP 402 Payment Required` (`x402`)** reverse proxy + MCP tool. Every micropayment from AI agents—settled in NEP-141 USDC, native NEAR, or cross-chain from Base/Solana/Arbitrum/Ethereum via **NEAR Intents 1Click**—lands directly inside that NFT's sub-account treasury. Transferring or selling the NFT atomically rotates ownership of both the live revenue stream and its accrued treasury while blocking seller mid-sale front-running (`Threat T-1`..`T-6`).
+When a developer mints an endpoint on `r402-reg-v1.testnet`, the registry atomically creates a **keyless NEAR sub-account** (`<slug>.r402-reg-v1.testnet`, `keys: []`), binds an immutable **NEP-591 Global Contract** (`0.25 NEAR` per mint instead of `~2 NEAR`), and exposes an **`HTTP 402 Payment Required` (`x402`)** reverse proxy + MCP tool. Every micropayment from AI agents—settled in NEP-141 USDC, native NEAR, or cross-chain from Base/Solana/Arbitrum/Ethereum via **NEAR Intents 1Click**—lands directly inside that NFT's sub-account treasury. Transferring or selling the NFT atomically rotates ownership of both the live revenue stream and its accrued treasury while mitigating six transfer/treasury attack vectors (`T-1`..`T-6`).
 
 ---
 
@@ -20,7 +20,7 @@ Zero API keys, wallets, or `.env` files are required to verify both the determin
   npm test
   npm run typecheck
   ```
-- **See:** Vitest passes **3 test files / 15 tests** (`House of Stake sharded-item-1.0.0 T0 & T2 Verification` forgery checks, full `HTTP 402 -> X-PAYMENT -> 200 OK`, blocked seller mid-sale drain `Threat T-2`, atomic ownership handover, x402 replay rejection, agent `payTo`/T2 trust boundaries, TEE truthfulness, and static-path traversal checks), and `tsc` verifies all 4 workspaces with zero errors.
+- **See:** Vitest passes **3 test files / 16 tests** (`House of Stake sharded-item-1.0.0 T0 & T2 Verification` forgery checks, pinned-block T2 pair coherence, full `HTTP 402 -> X-PAYMENT -> 200 OK`, blocked seller mid-sale drain `Threat T-2`, atomic ownership handover, x402 replay rejection, agent `payTo`/T2 trust boundaries, TEE truthfulness, and static-path traversal checks), and `tsc` verifies all 4 workspaces with zero errors.
 
 ### 2. Verify Live Deployed Contracts on NEAR Testnet (`Zero Keys Required`)
 - **Do:**
@@ -50,7 +50,7 @@ Zero API keys, wallets, or `.env` files are required to verify both the determin
   npm run web:build
   npm run demo
   ```
-- **See:** Opens the Route402 `x402` Gateway on `http://127.0.0.1:4402` and the Web Console on `http://127.0.0.1:4173` (toggle between **Simulated sandbox** and **Live NEAR Testnet** in the top navigation bar).
+- **See:** Starts the Route402 `x402` Gateway on `http://127.0.0.1:4402` and the Web Console on `http://127.0.0.1:4173` (toggle between **Simulated sandbox** and **Live NEAR Testnet** in the console top bar). Testnet mode is a read-only preview: it verifies T2 proofs and onchain receipts, but does not sign or submit payments.
 
 ### 5. Build & Test All 3 Rust Smart Contracts in `near-sandbox` (Requires Rust `>= 1.95` + `cargo-near`)
 - **Do:**
@@ -72,6 +72,8 @@ Zero API keys, wallets, or `.env` files are required to verify both the determin
 | **Account-NFT #2** (`Frozen` in `2 NEAR` Escrow) | `tee-auditor.r402-reg-v1.testnet` | https://testnet.nearblocks.io/address/tee-auditor.r402-reg-v1.testnet |
 | **Proof Tx — Blocked Seller Mid-Sale Drain (`T-2`)** | `4y4gSjQpXx8kuj7kqcobkW6dWe16NK5eAc6jKLCdejbs` | https://testnet.nearblocks.io/txns/4y4gSjQpXx8kuj7kqcobkW6dWe16NK5eAc6jKLCdejbs |
 | **Proof Tx — Mid-Sale `x402` USDC Settlement (`T-6`)** | `2sct1tUAS16xTdbxeSgUzzHHDu9D9eq4ex65kCrwQJX8` | https://testnet.nearblocks.io/txns/2sct1tUAS16xTdbxeSgUzzHHDu9D9eq4ex65kCrwQJX8 |
+
+> **Deployment note (important):** the live registry above predates the latest source hardening. Its `nft_metadata().spec` is still `"nft-2.0.0"`, while the local source now emits the NEP-177 `"nft-1.0.0"` and includes non-panicking cross-contract callbacks. The local `registry.wasm` SHA-256 is `8c2e4b37a82389a9aab1325649a07414f73a74ab9688502671ad8bc0489324c2` (base58 code hash `ASD2AsArWJToM3wPtVEfCsnrcVTpbW7Ur7qULZX8aoo7`), which differs from the deployed registry code hash `FiAmZUA6V6GEPdC2Z6CphZQAYFYe8Ujbq2CZD3SwaCGm`. Activating the registry-side metadata and callback fixes therefore requires a funded Testnet redeploy and re-seeding; this audit did not redeploy. The deployed global vault hash `1bbce4c18...` still matches the local `endpoint_vault.wasm`, so vault-side behavior is unchanged.
 
 ---
 
@@ -102,15 +104,21 @@ route402/
 
 ## Honest Runtime Mode Matrix
 
-Route402 never disguises simulated responses as live mainnet settlements. Every HTTP response and CLI banner explicitly labels `mode` and `simulated: true | false`:
+Route402 never disguises simulated responses as live mainnet settlements. Every settlement response and CLI banner explicitly labels `mode` and `simulated: true | false`:
 
 | Feature | `demo` (`npm run demo`) | `dry` (`npm run start:dry`) | `live` (`npm run start:live`) |
 | :--- | :--- | :--- | :--- |
 | **Account-NFT State & `T2` Verifier** | Deterministic in-process `SandboxChainMirror` | **Live NEAR Testnet RPC** (`final` blocks) | **Live NEAR Testnet RPC** (`final` blocks) |
 | **`HTTP 402` (`x402`) Settlement** | Simulated instant ledger (`simulated: true`); duplicate `request_id` rejected | Verifies `is_request_paid()` onchain, then consumes the `request_id` in the gateway replay cache | Verifies `is_request_paid()` onchain, then consumes the `request_id` in the gateway replay cache |
-| **NEAR Intents 1Click Quotes** | Offline deterministic fallback | **Live `POST https://1click.chaindefuser.com/v0/quote`** (`dry: true`) | **Live `1click.chaindefuser.com`** (`dry: false` deposit addresses) |
+| **NEAR Intents 1Click Quotes** | Offline deterministic fallback | **Live `POST https://1click.chaindefuser.com/v0/quote`** (`dry: true`) | **Live `1click.chaindefuser.com`** (`dry: false` deposit-address quotes available via `/api/quote-1click`; `--once` only previews) |
 | **NEAR AI Cloud Inference (`tee-auditor`)** | Deterministic structured preview (unless `NEAR_AI_API_KEY` set) | Live `cloud-api.near.ai` if `NEAR_AI_API_KEY` set; response digest recorded, **TEE attestation not independently verified** | Same as `dry` |
 | **Required Secrets / Keys** | **None** | **None** (read-only verification) | **None** for read-only `start:live`; wallet / `.near-credentials` only when an operator signs `ft_transfer_call`, listing, or buy transactions |
+
+### Residual security notes
+
+- The x402 replay cache is **process-local**: 24-hour window, 10,000 entries, keyed by `endpoint:request_id`. It rejects duplicate submissions inside one gateway process, but a restart or a second gateway instance can forget a consumed ID. The onchain `is_request_paid(request_id)` check remains the settlement source of truth in `dry`/`live` mode.
+- NEAR AI Cloud responses record a digest, but TEE attestation is **not independently verified** (`teeAttested: false`, `zeroServerRetention: 'unverified'`).
+- `T-3` and `T-5` are exercised by the `near-sandbox` E2E test; `T-4` is covered by vault unit tests `t4_pending_outflow_blocks_listing` / `t4_pending_outflow_blocks_rotation`; `verify:testnet` checks live `T2`, `keys: []`, listings, and receipts — not every invariant.
 
 See [`THREAT_MODEL.md`](./THREAT_MODEL.md) for the complete 6-vector security specification (`T-1` through `T-6`) and House of Stake `sharded-item-1.0.0` `T2` pair verification clauses.
 

@@ -8,7 +8,7 @@ export function StatsRibbon() {
         <div>
           <span className="pill-outline">
             <span style={{ color: 'var(--accent)' }}>✓</span>
-            <span>Formally verified on NEAR Testnet</span>
+            <span>Verified on NEAR Testnet</span>
           </span>
         </div>
 

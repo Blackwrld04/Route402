@@ -1,4 +1,4 @@
-import { ArrowUpRight, MousePointer2 } from 'lucide-react';
+import { MousePointer2 } from 'lucide-react';
 import { MountainBackdrop } from './MountainBackdrop';
 
 export function ProtocolFeaturesTrio() {
@@ -14,7 +14,7 @@ export function ProtocolFeaturesTrio() {
             Revolutionize your API monetization with Account-NFTs
           </h2>
           <p className="section-desc">
-            Leverage single-account sharding and predictive cryptographic invariants to monetize your APIs.
+            Leverage single-account sharding and deterministic contract invariants to monetize your APIs.
           </p>
         </div>
 
@@ -26,17 +26,15 @@ export function ProtocolFeaturesTrio() {
               
               <div className="floating-white-card">
                 <div className="white-card-tag-green">
-                  <span>✦ AI Suggestion</span>
+                  <span>✦ Treasury model</span>
                 </div>
                 <div className="white-card-body-text">
-                  Auto-route 15% of endpoint cashflow to liquid staking pools to maximize treasury return.
+                  Treasury balance is held directly by the endpoint sub-account, with no proxy custody.
                 </div>
                 <div className="white-card-action-row">
-                  <span className="white-card-sub-muted">Balance sovereign vault</span>
+                  <span className="white-card-sub-muted">Direct NEP-141 custody</span>
                   <div className="white-card-dark-pill">
-                    <span>View More</span>
-                    <ArrowUpRight size={11} />
-                    <MousePointer2 size={12} className="pointer-cursor-icon" />
+                    <span>NEP-141</span>
                   </div>
                 </div>
               </div>
@@ -44,7 +42,7 @@ export function ProtocolFeaturesTrio() {
             <div className="trio-card-content">
               <h3 className="trio-card-title">Keyless Sub-Account Sovereignty</h3>
               <p className="trio-card-desc">
-                Endpoints exist as first-class NEAR accounts without proxy indirection. Direct <code>ft_on_transfer</code> hooks receive payments with zero intermediary risk.
+                Endpoints exist as first-class NEAR accounts without proxy indirection. Direct <code>ft_on_transfer</code> hooks receive payments with no intermediary custody.
               </p>
             </div>
           </div>
@@ -115,8 +113,8 @@ export function ProtocolFeaturesTrio() {
                     <span className="asset-name">Base USDC</span>
                   </div>
                   <div className="asset-right num">
-                    <span>$0.0400</span>
-                    <span className="asset-delta-green">▲ 1.4%</span>
+                    <span>1Click</span>
+                    <span className="asset-delta-green">Route</span>
                   </div>
                 </div>
 
@@ -126,8 +124,8 @@ export function ProtocolFeaturesTrio() {
                     <span className="asset-name">Solana USDC</span>
                   </div>
                   <div className="asset-right num">
-                    <span>$0.0400</span>
-                    <span className="asset-delta-green">▲ 2.1%</span>
+                    <span>Solver</span>
+                    <span className="asset-delta-green">Route</span>
                   </div>
                 </div>
 
@@ -137,7 +135,7 @@ export function ProtocolFeaturesTrio() {
                     <span className="asset-name">NEAR USDC</span>
                   </div>
                   <div className="asset-right num">
-                    <span>$0.0400</span>
+                    <span>USDC</span>
                     <span className="asset-instant-tag">Instant</span>
                     <MousePointer2 size={12} className="pointer-cursor-icon-static" />
                   </div>
@@ -147,7 +145,7 @@ export function ProtocolFeaturesTrio() {
             <div className="trio-card-content">
               <h3 className="trio-card-title">Universal Cross-Chain Settlement</h3>
               <p className="trio-card-desc">
-                Any agent on Base, Solana, or Arbitrum pays via NEAR Intents 1Click. Solvers front the NEAR USDC immediately; the caller never needs a NEAR wallet.
+                Any agent on Base, Solana, or Arbitrum can pay via NEAR Intents 1Click. Solvers quote the route and deliver NEAR USDC; the caller or a facilitator submits the settlement proof.
               </p>
             </div>
           </div>

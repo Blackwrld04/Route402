@@ -83,6 +83,60 @@ describe('House of Stake sharded-item-1.0.0 T0 & T2 Verification', () => {
     expect(res.verdict).toBe('REFUSED_IDENTITY_MISMATCH');
   });
 
+  it('uses the caller-supplied pinned block for every read of the T2 pair', async () => {
+    const seenBlockIds: Array<number | string> = [];
+    let blockFetches = 0;
+    const provider: NearRpcProvider = {
+      async getFinalBlock() {
+        blockFetches += 1;
+        return { height: 900, hash: 'blk_900' };
+      },
+      async viewAtBlock<T>(
+        _accountId: string,
+        methodName: string,
+        _args: Record<string, unknown>,
+        blockId: number | string,
+      ): Promise<T | null> {
+        seenBlockIds.push(blockId);
+        if (methodName === 'nft_item_info') {
+          return {
+            spec: 'sharded-item-1.0.0',
+            init: true,
+            status: 'Active',
+            collection_id: 'trusted-reg.testnet',
+            token_id: 'pinned.trusted-reg.testnet',
+            owner_id: 'alice.testnet',
+            rotation_seq: '0',
+            rotation_epoch: 1,
+          } as unknown as T;
+        }
+        if (methodName === 'nft_token') {
+          return { token_id: 'pinned.trusted-reg.testnet', owner_id: 'alice.testnet' } as unknown as T;
+        }
+        if (methodName === 'get_token_rotation_seq') {
+          return '0' as unknown as T;
+        }
+        return null;
+      },
+    };
+
+    const res = await verifyT2ShardedItem({
+      provider,
+      accountId: 'pinned.trusted-reg.testnet',
+      pinnedCollectionId: 'trusted-reg.testnet',
+      pinnedBlock: { height: 12345, hash: 'blk_12345' },
+    });
+
+    expect(res.ok).toBe(true);
+    expect(res.blockHeight).toBe(12345);
+    expect(res.blockHash).toBe('blk_12345');
+    // Every read of the pair must be pinned to the SAME block...
+    expect(seenBlockIds.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(seenBlockIds)).toEqual(new Set([12345]));
+    // ...and no extra block fetch is required for the pinned attempt.
+    expect(blockFetches).toBe(0);
+  });
+
   it('distinguishes invented rotation vs transient cross-receipt lag', async () => {
     const providerInvented: NearRpcProvider = {
       async getFinalBlock() {

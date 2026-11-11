@@ -119,13 +119,15 @@ export function MintEndpointPanel({
                 <span>
                   {busyAction === 'mint'
                     ? 'Minting in sandbox…'
-                    : `Mint ${mintSlug}.r402-reg-v1.testnet`}
+                    : sourceMode === 'sandbox'
+                      ? `Mint ${mintSlug}.registry.route402.testnet`
+                      : `Mint ${mintSlug}.r402-reg-v1.testnet`}
                 </span>
               </button>
             ) : (
               <div className="wire-box">
                 <div className="wire-box-head">
-                  <span>Live NEAR Testnet CLI mint command</span>
+                  <span>Generated Testnet CLI mint command (not executed)</span>
                 </div>
                 <pre className="wire-pre">
                   {`near contract call-function as-transaction ${TESTNET_DEPLOYMENT.registryId} mint_endpoint json-args '{"slug":"${mintSlug}","title":"${mintTitle}","description":"Cash-flowing x402 API","category":"${mintCategory}","upstream_slug":"${mintUpstream}","price_per_call_usdc":"${mintPriceUsdc}","price_per_call_yocto":"10000000000000000000000"}' prepaid-gas '150.0 Tgas' attached-deposit '0.25 NEAR'`}

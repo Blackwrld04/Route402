@@ -2,10 +2,12 @@ export function ArchitectureDiagram({
   selectedTokenId,
   ownerId,
   rotationSeq,
+  accessKeyCount,
 }: {
   selectedTokenId: string;
   ownerId: string;
   rotationSeq: string;
+  accessKeyCount: number | null;
 }) {
   return (
     <>
@@ -244,7 +246,10 @@ export function ArchitectureDiagram({
           <span className="flow-kicker">4 · Own</span>
           <span className="flow-title">Keyless Account-NFT</span>
           <code className="flow-code flow-ok">{selectedTokenId.split('.')[0]}.*</code>
-          <code className="flow-code">keys: [] (NEP-591)</code>
+          <code className="flow-code">
+            keys: {accessKeyCount === 0 ? '[]' : accessKeyCount === null ? '?' : accessKeyCount}{' '}
+            (NEP-591)
+          </code>
           <span className="flow-owner">Owner: {ownerId.split('.')[0]}</span>
           <code className="flow-code">sharded-item-1.0.0</code>
         </li>

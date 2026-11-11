@@ -30,8 +30,8 @@ import { FaqSection } from './components/FaqSection';
 import { CtaBanner } from './components/CtaBanner';
 import { MintEndpointPanel } from './components/MintEndpointPanel';
 import { LedgerAuditPanel } from './components/LedgerAuditPanel';
-import { NewsletterStrip } from './components/NewsletterStrip';
 import { FooterSection } from './components/FooterSection';
+import { NewsletterStrip } from './components/NewsletterStrip';
 import { ToastNotice } from './components/ToastNotice';
 import { INITIAL_ENTRIES } from './fallback-data';
 import { TESTNET_DEPLOYMENT } from './testnet-manifest';
@@ -63,7 +63,7 @@ export function App() {
 
   const [sourceMode, setSourceMode] = useState<DataSourceMode>('sandbox');
   const [entries, setEntries] = useState<EndpointEntry[]>(INITIAL_ENTRIES);
-  const [selectedId, setSelectedId] = useState<string>(INITIAL_ENTRIES[0].summary.token_id);
+  const [selectedId, setSelectedId] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [wireLog, setWireLog] = useState<WireExchangeLog | null>(null);
@@ -72,6 +72,7 @@ export function App() {
     originChain: string;
     targetVault: string;
     quote: OneClickQuoteResponse;
+    note?: string;
   } | null>(null);
   const [escrowBanner, setEscrowBanner] = useState<{
     kind: 'ok' | 'blocked';
@@ -147,11 +148,14 @@ export function App() {
         summary: VaultSummary;
         listing: MarketListing | null;
         t2: import('@route402/core').T2VerificationResult;
+        accessKeyCount?: number | null;
       }>;
     };
     return data.endpoints.map((item) => ({
       ...item,
-      accessKeyCount: 0,
+      // Read from the gateway (which queries the same provider that backs T2)
+      // rather than assumed. `null` means "unknown", not "zero".
+      accessKeyCount: item.accessKeyCount ?? null,
     }));
   }, []);
 
@@ -189,6 +193,10 @@ export function App() {
             accountId: id,
             pinnedCollectionId: TESTNET_DEPLOYMENT.registryId,
             maxRetries: 1,
+            // Pin every read to the SAME finalized block so the summary, the
+            // T2 verdict and the listings shown in the console are one
+            // coherent state rather than a mix of blocks.
+            pinnedBlock: { height: finalBlock.height, hash: finalBlock.hash },
           }),
           rpc.viewAccessKeys(id).catch(() => null),
         ]);
@@ -205,13 +213,33 @@ export function App() {
     return loaded.filter((x): x is EndpointEntry => x !== null);
   }, []);
 
+  const modeRef = useRef<DataSourceMode>(sourceMode);
+  const previousModeRef = useRef<DataSourceMode | null>(null);
+
+  // Keep the ref in sync so in-flight loads can detect a mode switch.
+  useEffect(() => {
+    modeRef.current = sourceMode;
+    if (previousModeRef.current !== null && previousModeRef.current !== sourceMode) {
+      // Drop the previous mode's endpoints immediately so stale sandbox IDs are
+      // never rendered under the Testnet label (or vice versa).
+      setEntries([]);
+      setSelectedId('');
+    }
+    previousModeRef.current = sourceMode;
+  }, [sourceMode]);
+
   const refreshData = useCallback(async () => {
     setLoading(true);
+    const modeAtRequest = sourceMode;
     try {
       const next =
-        sourceMode === 'sandbox'
+        modeAtRequest === 'sandbox'
           ? await loadSandboxEndpoints()
           : await loadLiveTestnetEndpoints();
+      // Drop the response if the user switched mode while it was in flight —
+      // otherwise the console would show the old mode's endpoints under the
+      // new mode's label.
+      if (modeRef.current !== modeAtRequest) return;
       setEntries(next);
       setSelectedId((prev) =>
         prev && next.some((e) => e.summary.token_id === prev)
@@ -219,12 +247,13 @@ export function App() {
           : (next[0]?.summary.token_id ?? ''),
       );
     } catch (err) {
+      if (modeRef.current !== modeAtRequest) return;
       setEscrowBanner({
         kind: 'blocked',
         message: err instanceof Error ? err.message : String(err),
       });
     } finally {
-      setLoading(false);
+      if (modeRef.current === modeAtRequest) setLoading(false);
     }
   }, [sourceMode, loadSandboxEndpoints, loadLiveTestnetEndpoints]);
 
@@ -232,6 +261,7 @@ export function App() {
     setEscrowBanner(null);
     setWireLog(null);
     setQuoteResult(null);
+    setNotice(null);
     void refreshData();
   }, [refreshData]);
 
@@ -295,15 +325,18 @@ export function App() {
           },
           receiptHeader: {
             preview: true,
-            t2VerifiedOnTestnet: true,
+            t2VerifiedOnTestnet: t2.ok,
+            t2Verdict: t2.verdict,
             t2BlockHeight: t2.blockHeight,
             vaultUsdcBalance: selected.summary.vault_usdc_balance,
             beneficiaryOwner: selected.summary.owner_id,
           },
         });
         setNotice({
-          kind: 'info',
-          message: 'Read-only Testnet preview loaded. No transaction was signed.',
+          kind: t2.ok ? 'info' : 'blocked',
+          message: t2.ok
+            ? `Read-only Testnet preview loaded (T2 ${t2.verdict} @ block #${t2.blockHeight}). No transaction was signed.`
+            : `Read-only preview loaded, but T2 verification failed: ${t2.verdict}. No payment should be sent.`,
         });
         return;
       }
@@ -431,6 +464,7 @@ export function App() {
           originChain,
           targetVault: selected.summary.token_id,
           quote,
+          note: 'Dry quote uses intents.near as the mainnet recipient because .testnet vault IDs are not valid mainnet accounts.',
         });
       }
       setNotice({
@@ -733,6 +767,7 @@ export function App() {
             selectedTokenId={selected?.summary.token_id ?? 'alpha-signal.route402.testnet'}
             ownerId={selected?.summary.owner_id ?? 'alice.route402.testnet'}
             rotationSeq={selected?.summary.rotation_seq ?? '0'}
+            accessKeyCount={selected?.accessKeyCount ?? null}
           />
         </div>
       </section>
@@ -774,13 +809,13 @@ export function App() {
         </div>
       </section>
 
-      {/* 11. FAQ Section with Live Graph Visualizer (Image 3 bottom) */}
+      {/* 11. FAQ Section with Illustrative Graph Visualizer (Image 3 bottom) */}
       <FaqSection />
 
       {/* 12. High-Impact Call-to-Action Banner (Image 4 top) */}
       <CtaBanner onScrollToMint={() => scrollToSection('mint-section')} />
 
-      {/* 13. Newsletter & Developer Updates Strip (Image 4 middle) */}
+      {/* 13. Developer Updates Strip (Image 4 middle) */}
       <NewsletterStrip />
 
       {/* 14. Luxury Multi-Column Footer with Giant Watermark (Image 4 bottom) */}

@@ -52,6 +52,7 @@ interface LiveConsolePageProps {
     originChain: string;
     targetVault: string;
     quote: OneClickQuoteResponse;
+    note?: string;
   } | null;
   wireLog: WireExchangeLog | null;
   walletAccountId: string | null;
@@ -84,6 +85,28 @@ interface LiveConsolePageProps {
 }
 
 type ConsoleTab = 'wire' | 'threat-t2' | 'ledger' | 'mint';
+
+function keysLabel(entry: EndpointEntry): string {
+  if (entry.accessKeyCount === null) return 'keys: ?';
+  return entry.accessKeyCount === 0 ? 'keys: []' : `keys: ${entry.accessKeyCount}`;
+}
+
+function keylessLabel(entry: EndpointEntry): string {
+  if (entry.accessKeyCount === null) return 'Keys unknown';
+  return entry.accessKeyCount === 0 ? '0-Keys Sovereign' : `${entry.accessKeyCount} key(s) present`;
+}
+
+function categoryLabel(category: string): string {
+  return category
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function railLabel(rail: string): string {
+  if (rail === 'near-intents-1click') return '1Click Intents';
+  if (rail === 'nep141-usdc') return 'NEP-141 USDC';
+  return 'Native NEAR';
+}
 
 export function LiveConsolePage({
   entries,
@@ -127,6 +150,23 @@ export function LiveConsolePage({
   const [copiedCurl, setCopiedCurl] = useState(false);
 
   const current = selected ?? entries[0] ?? null;
+  const recentReceipts = current ? current.summary.recent_receipts.slice(-12) : [];
+  const maxReceipt = Math.max(1, ...recentReceipts.map((r) => Number(r.amount)));
+
+  const categories = useMemo(
+    () => Array.from(new Set(entries.map((e) => e.summary.category))).sort(),
+    [entries],
+  );
+
+  const keylessSummary = useMemo(() => {
+    if (entries.length === 0) return 'No endpoints loaded';
+    if (entries.some((e) => e.accessKeyCount !== null && e.accessKeyCount > 0)) {
+      const withKeys = entries.filter((e) => e.accessKeyCount !== null && e.accessKeyCount > 0).length;
+      return `${withKeys} vault(s) with keys`;
+    }
+    if (entries.some((e) => e.accessKeyCount === null)) return 'Partially verified';
+    return '100% Zero-Keys';
+  }, [entries]);
 
   // Filtered endpoints in sidebar
   const filteredEntries = useMemo(() => {
@@ -144,7 +184,8 @@ export function LiveConsolePage({
 
   const handleCopyCurl = async () => {
     if (!current) return;
-    const curlCmd = `curl -i -X GET https://gateway.route402.testnet/x402/${current.summary.upstream_slug || 'alpha-signal'} \\
+    const origin = typeof window === 'undefined' ? '' : window.location.origin;
+    const curlCmd = `curl -i '${origin}/x402/${current.summary.token_id}/${current.summary.upstream_slug || 'alpha-signal'}' \\
   -H "Accept: application/json"`;
     try {
       await navigator.clipboard.writeText(curlCmd);
@@ -186,7 +227,7 @@ export function LiveConsolePage({
             <span className="num">
               {sourceMode === 'sandbox'
                 ? 'Simulation Sandbox · 0-keys local state'
-                : 'Live NEAR Testnet RPC · r402-reg-v1.testnet'}
+                : 'Live NEAR Testnet RPC · read-only preview'}
             </span>
           </div>
         </div>
@@ -257,40 +298,40 @@ export function LiveConsolePage({
             />
           </div>
 
-          {/* Category Filter Chips */}
+          {/* Category Filter Chips (derived from live data, not hardcoded) */}
           <div className="console-cat-filter-row">
-            <button
-              type="button"
-              className={`cat-chip ${categoryFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setCategoryFilter('all')}
-            >
-              All ({entries.length})
-            </button>
-            <button
-              type="button"
-              className={`cat-chip ${categoryFilter === 'ai-signal' ? 'active' : ''}`}
-              onClick={() => setCategoryFilter('ai-signal')}
-            >
-              Signals
-            </button>
-            <button
-              type="button"
-              className={`cat-chip ${categoryFilter === 'ai-inference' ? 'active' : ''}`}
-              onClick={() => setCategoryFilter('ai-inference')}
-            >
-              Inference
-            </button>
-            <button
-              type="button"
-              className={`cat-chip ${categoryFilter === 'ai-sentiment' ? 'active' : ''}`}
-              onClick={() => setCategoryFilter('ai-sentiment')}
-            >
-              Sentiment
-            </button>
+            {categories.length > 0 && (
+              <button
+                type="button"
+                className={`cat-chip ${categoryFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setCategoryFilter('all')}
+              >
+                All ({entries.length})
+              </button>
+            )}
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                className={`cat-chip ${categoryFilter === category ? 'active' : ''}`}
+                onClick={() => setCategoryFilter(category)}
+              >
+                {categoryLabel(category)}
+              </button>
+            ))}
           </div>
 
           {/* Endpoint Roster List */}
           <div className="console-endpoint-scroll">
+            {loading && entries.length === 0 && (
+              <div className="console-loading-note">
+                <Loader2 size={14} className="spin" />
+                <span>
+                  Reading live endpoint state from{' '}
+                  {sourceMode === 'sandbox' ? 'the gateway' : 'NEAR Testnet RPC'}…
+                </span>
+              </div>
+            )}
             {filteredEntries.map((e) => {
               const isSel = (current?.summary.token_id ?? '') === e.summary.token_id;
               const s = e.summary;
@@ -313,7 +354,7 @@ export function LiveConsolePage({
 
                   <div className="vault-card-footer">
                     <span className="vault-stat num">Treasury: ${formatUsdc(s.vault_usdc_balance)}</span>
-                    <span className="vault-key-badge">keys: []</span>
+                    <span className="vault-key-badge">{keysLabel(e)}</span>
                   </div>
                 </button>
               );
@@ -324,7 +365,11 @@ export function LiveConsolePage({
           <div className="console-sidebar-footer">
             <div className="footer-metric-row">
               <span className="f-label">Keyless Sub-Accounts</span>
-              <strong className="f-val num" style={{ color: 'var(--accent)' }}>100% Zero-Keys</strong>
+              <strong className="f-val num" style={{ color: 'var(--accent)' }}>{keylessSummary}</strong>
+            </div>
+            <div className="footer-metric-row">
+              <span className="f-label">x402 Replay Guard</span>
+              <strong className="f-val num">24h / request_id</strong>
             </div>
             <div className="footer-metric-row">
               <span className="f-label">Intermediary Rent</span>
@@ -349,9 +394,9 @@ export function LiveConsolePage({
                   <div className="asset-identity-cluster">
                     <div className="asset-main-symbol-row">
                       <h2 className="asset-token-title num">{current.summary.token_id}</h2>
-                      <span className="badge-verified-keyless" title="NEP-591 Keyless State">
+                      <span className="badge-verified-keyless" title="NEP-591 access-key state">
                         <CheckCircle2 size={13} style={{ color: 'var(--accent)' }} />
-                        <span>0-Keys Sovereign</span>
+                        <span>{keylessLabel(current)}</span>
                       </span>
                       <StatusPill status={current.summary.status} />
                       <span className="badge-category">{current.summary.category}</span>
@@ -398,7 +443,7 @@ export function LiveConsolePage({
                       <strong className="m-val">${formatUsdc(current.summary.price_per_call_usdc)}</strong>
                       <span className="m-sub">USDC</span>
                     </div>
-                    <span className="m-delta green num">▲ +12.4% 24h</span>
+                    <span className="m-delta muted num">Current x402 rate</span>
                   </div>
 
                   <div className="metric-box">
@@ -429,49 +474,64 @@ export function LiveConsolePage({
                   </div>
                 </div>
 
-                {/* Interactive Settlement Volume Area Chart */}
+                {/* Real settlement receipts (replaces the decorative chart) */}
                 <div className="console-chart-wrapper">
                   <div className="chart-header-row">
-                    <span className="chart-title num">HTTP 402 Micro-Settlement Velocity</span>
-                    <div className="chart-pills">
-                      <span className="c-pill active">1H</span>
-                      <span className="c-pill">24H</span>
-                      <span className="c-pill">7D</span>
-                      <span className="c-pill">30D</span>
-                      <span className="c-pill">ALL</span>
-                    </div>
+                    <span className="chart-title num">
+                      Recent x402 Settlements ({recentReceipts.length})
+                    </span>
+                    <span className="m-delta muted num">
+                      {sourceMode === 'sandbox' ? 'Sandbox ledger' : 'Finalized onchain receipts'}
+                    </span>
                   </div>
 
-                  <svg viewBox="0 0 720 140" width="100%" height="140" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="consoleChartGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#00ec97" stopOpacity="0.32" />
-                        <stop offset="70%" stopColor="#00ec97" stopOpacity="0.05" />
-                        <stop offset="100%" stopColor="#00ec97" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-
-                    {/* Guidelines */}
-                    <line x1="0" y1="30" x2="720" y2="30" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
-                    <line x1="0" y1="70" x2="720" y2="70" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
-                    <line x1="0" y1="110" x2="720" y2="110" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
-
-                    {/* Area & Line */}
-                    <path
-                      d="M 0 110 Q 90 95, 180 80 T 360 60 T 540 38 T 720 20 L 720 140 L 0 140 Z"
-                      fill="url(#consoleChartGlow)"
-                    />
-                    <path
-                      d="M 0 110 Q 90 95, 180 80 T 360 60 T 540 38 T 720 20"
-                      fill="none"
-                      stroke="#00ec97"
-                      strokeWidth="2.2"
-                    />
-
-                    {/* Pulse point */}
-                    <circle cx="720" cy="20" r="4.5" fill="#00ec97" />
-                    <circle cx="720" cy="20" r="10" fill="#00ec97" opacity="0.35" />
-                  </svg>
+                  {recentReceipts.length > 0 ? (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-end',
+                        gap: 8,
+                        height: 140,
+                        paddingTop: 12,
+                      }}
+                    >
+                      {recentReceipts.map((receipt, index) => (
+                        <div
+                          key={`${receipt.receipt_id}-${index}`}
+                          title={`${receipt.request_id} · $${formatUsdc(receipt.amount)} · ${railLabel(receipt.rail)}`}
+                          style={{
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            gap: 6,
+                            height: '100%',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: '100%',
+                              height: `${Math.max(8, (Number(receipt.amount) / maxReceipt) * 100)}px`,
+                              background:
+                                'linear-gradient(180deg, rgba(0,236,151,0.85) 0%, rgba(0,236,151,0.18) 100%)',
+                              borderRadius: '4px 4px 0 0',
+                            }}
+                          />
+                          <span className="num" style={{ fontSize: 9, color: 'var(--ink-3)' }}>
+                            {railLabel(receipt.rail)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="wire-empty-state" style={{ padding: '28px 12px' }}>
+                      <Terminal size={26} style={{ color: 'var(--ink-3)' }} />
+                      <p className="empty-desc" style={{ marginTop: 8 }}>
+                        No settled x402 receipts for this endpoint yet.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -533,8 +593,10 @@ export function LiveConsolePage({
                       <div className="wire-log-deck">
                         <div className="wire-log-panel">
                           <div className="log-panel-head">
-                            <span className="num">Challenge Payload (HTTP 402)</span>
-                            <span className="log-badge status-402">HTTP 402</span>
+                            <span className="num">Challenge Payload (HTTP {wireLog.challengeStatus})</span>
+                            <span className="log-badge status-402">
+                              HTTP {wireLog.challengeStatus}
+                            </span>
                           </div>
                           <pre className="code-block num">
                             {JSON.stringify(wireLog.challenge, null, 2)}
@@ -543,8 +605,18 @@ export function LiveConsolePage({
 
                         <div className="wire-log-panel">
                           <div className="log-panel-head">
-                            <span className="num">Verified Response (200 OK)</span>
-                            <span className="log-badge status-200">200 OK</span>
+                            <span className="num">
+                              {wireLog.readOnly
+                                ? 'Read-Only Preview (no payment submitted)'
+                                : `Verified Response (HTTP ${wireLog.paidStatus})`}
+                            </span>
+                            <span
+                              className={`log-badge ${
+                                wireLog.readOnly ? 'status-402' : 'status-200'
+                              }`}
+                            >
+                              {wireLog.readOnly ? 'PREVIEW' : `${wireLog.paidStatus} OK`}
+                            </span>
                           </div>
                           <pre className="code-block num">
                             {JSON.stringify(wireLog.responseBody, null, 2)}
@@ -554,9 +626,15 @@ export function LiveConsolePage({
                     ) : (
                       <div className="wire-empty-state">
                         <Terminal size={32} style={{ color: 'var(--ink-3)' }} />
-                        <h4 className="empty-title">Ready for HTTP 402 Wire Exchange</h4>
+                        <h4 className="empty-title">
+                          {sourceMode === 'sandbox'
+                            ? 'Ready for HTTP 402 Wire Exchange'
+                            : 'Ready to Preview the HTTP 402 Challenge'}
+                        </h4>
                         <p className="empty-desc">
-                          Click &quot;Execute x402 Settlement ⚡&quot; on the right to simulate a real payment challenge, cryptographic verification, and 200 OK data handover.
+                          {sourceMode === 'sandbox'
+                            ? 'Click "Execute x402 Settlement ⚡" on the right to run a simulated payment challenge, T2 verification, and 200 OK data handover.'
+                            : 'Click "Preview x402 Challenge (Read-Only)" on the right to fetch the live T2 proof and recent onchain receipts. No transaction is signed and no payment is submitted in Testnet mode.'}
                         </p>
                       </div>
                     )}
@@ -590,18 +668,22 @@ export function LiveConsolePage({
                           </tr>
                           <tr>
                             <th>Access Keys (Threat T-1)</th>
-                            <td className="num">
-                              {current.accessKeyCount === null
-                                ? 'Unavailable'
-                                : `keys: [] (${current.accessKeyCount} keys deployed)`}
+                            <td className="num">{keysLabel(current)}</td>
+                          </tr>
+                          <tr>
+                            <th>Pinned-Block T2 Proof</th>
+                            <td>
+                              <span style={{ color: current.t2.ok ? 'var(--accent)' : 'var(--warn-ink)', fontWeight: 600 }}>
+                                {current.t2.ok
+                                  ? `✓ ${current.t2.verdict} (pinned-block pair check)`
+                                  : `Unverified: ${current.t2.verdict}`}
+                              </span>
                             </td>
                           </tr>
                           <tr>
-                            <th>Dual-RPC Cryptographic Proof</th>
-                            <td>
-                              <span style={{ color: current.t2.ok ? 'var(--accent)' : 'var(--warn-ink)', fontWeight: 600 }}>
-                                {current.t2.ok ? '✓ Dual-RPC Proof Validated' : 'Unverified'}
-                              </span>
+                            <th>x402 Replay Guard</th>
+                            <td className="num">
+                              request_id consumed once per vault (24h gateway cache)
                             </td>
                           </tr>
                           <tr>
@@ -706,7 +788,11 @@ export function LiveConsolePage({
             </>
           ) : (
             <div className="console-empty-prompt">
-              <span>Select an endpoint on the left to inspect its live sovereign console.</span>
+              <span>
+                {entries.length === 0
+                  ? 'Reading live endpoint state from the gateway / NEAR Testnet RPC…'
+                  : 'Select an endpoint on the left to inspect its live sovereign console.'}
+              </span>
             </div>
           )}
         </main>
@@ -741,11 +827,13 @@ export function LiveConsolePage({
           <div className="swap-input-card">
             <div className="swap-card-label-row">
               <span>Pay with cross-chain rail</span>
-              <span className="num">Balance: $100.00</span>
+              <span className="num">
+                Vault: ${current ? formatUsdc(current.summary.vault_usdc_balance) : '—'}
+              </span>
             </div>
             <div className="swap-value-row">
               <span className="swap-amount num">
-                ${current ? formatUsdc(current.summary.price_per_call_usdc) : '0.0400'}
+                ${current ? formatUsdc(current.summary.price_per_call_usdc) : '0.0000'}
               </span>
               <div className="swap-pill-tag">
                 <ChainIcon chain={originChain} size={14} />
@@ -766,7 +854,7 @@ export function LiveConsolePage({
             </div>
             <div className="swap-value-row">
               <span className="swap-amount num" style={{ color: 'var(--accent)' }}>
-                ${current ? formatUsdc(current.summary.price_per_call_usdc) : '0.0400'}
+                ${current ? formatUsdc(current.summary.price_per_call_usdc) : '0.0000'}
               </span>
               <div className="swap-pill-tag">
                 <ChainIcon chain="near" size={14} />
@@ -790,8 +878,12 @@ export function LiveConsolePage({
               )}
               <span>
                 {busyAction === 'x402'
-                  ? 'Executing 402 Settlement…'
-                  : 'Execute x402 Settlement ⚡'}
+                  ? sourceMode === 'sandbox'
+                    ? 'Executing 402 Settlement…'
+                    : 'Loading Read-Only Preview…'
+                  : sourceMode === 'sandbox'
+                    ? 'Execute x402 Settlement ⚡'
+                    : 'Preview x402 Challenge (Read-Only)'}
               </span>
             </button>
 
@@ -801,12 +893,12 @@ export function LiveConsolePage({
               disabled={busyAction !== null}
               onClick={onQuoteOneClick}
             >
-              {busyAction === 'oneclick' ? (
+              {busyAction === '1click' ? (
                 <Loader2 size={13} className="spin" />
               ) : (
                 <ArrowDown size={13} />
               )}
-              <span>Fetch 1Click Solver Quote</span>
+              <span>{busyAction === '1click' ? 'Fetching 1Click Quote…' : 'Fetch 1Click Solver Quote'}</span>
             </button>
           </div>
 
@@ -834,32 +926,61 @@ export function LiveConsolePage({
                   ~{quoteResult.quote.quote?.timeEstimate ?? 4.2} seconds
                 </span>
               </div>
+              {quoteResult.note && (
+                <p className="m-delta muted" style={{ marginTop: 8, lineHeight: 1.4 }}>
+                  {quoteResult.note}
+                </p>
+              )}
             </div>
           )}
 
-          {/* Network Activity Feed */}
+          {/* Real receipt feed (replaces hardcoded telemetry) */}
           <div className="console-activity-feed">
-            <span className="feed-title num">LIVE TESTNET TELEMETRY</span>
+            <span className="feed-title num">
+              {sourceMode === 'sandbox' ? 'SANDBOX RECEIPTS' : 'ONCHAIN RECEIPTS'}
+            </span>
             <div className="feed-items">
-              <div className="feed-item">
-                <span className="feed-dot green" />
-                <div className="feed-info">
-                  <span className="feed-text">Settled $0.0400 via Base USDC</span>
-                  <span className="feed-sub num">alpha-signal · block #188420100</span>
+              {recentReceipts
+                .slice(-3)
+                .reverse()
+                .map((receipt, index) => (
+                  <div className="feed-item" key={`${receipt.receipt_id}-${index}`}>
+                    <span
+                      className={`feed-dot ${
+                        receipt.rail === 'near-intents-1click' ? 'amber' : 'green'
+                      }`}
+                    />
+                    <div className="feed-info">
+                      <span className="feed-text">
+                        Settled ${formatUsdc(receipt.amount)} via {railLabel(receipt.rail)}
+                      </span>
+                      <span className="feed-sub num">
+                        {receipt.request_id} · {new Date(receipt.timestamp_ms).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              {recentReceipts.length === 0 && (
+                <div className="feed-item">
+                  <span className="feed-dot amber" />
+                  <div className="feed-info">
+                    <span className="feed-text">No settled receipts yet</span>
+                    <span className="feed-sub num">
+                      Run an x402 call to populate this feed
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="feed-item">
-                <span className="feed-dot green" />
+                <span className={`feed-dot ${current?.t2.ok ? 'green' : 'amber'}`} />
                 <div className="feed-info">
-                  <span className="feed-text">1Click Swap solved in 3.8s</span>
-                  <span className="feed-sub num">Solana USDC → NEAR USDC</span>
-                </div>
-              </div>
-              <div className="feed-item">
-                <span className="feed-dot amber" />
-                <div className="feed-info">
-                  <span className="feed-text">Threat T-2 Invariant Verified</span>
-                  <span className="feed-sub num">sentiment-feed · keys: []</span>
+                  <span className="feed-text">
+                    T2 {current?.t2.ok ? 'verified' : 'unverified'}
+                  </span>
+                  <span className="feed-sub num">
+                    pinned block #{current?.t2.blockHeight ?? '—'} ·{' '}
+                    {current?.t2.verdict ?? 'no proof'}
+                  </span>
                 </div>
               </div>
             </div>

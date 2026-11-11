@@ -38,7 +38,7 @@ export function SecurityShowcase({
             Powerful Tools for Sovereign Endpoint Management
           </h2>
           <p className="section-desc">
-            Take full control of your endpoint cash flows with robust invariants designed to simplify transfers, guarantee buyer escrow, and prevent key retention.
+            Take full control of your endpoint cash flows with robust invariants designed to simplify transfers, enforce buyer escrow, and prevent key retention.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export function SecurityShowcase({
 
             {/* Box 3 */}
             <div className="security-card">
-              <h3 className="security-card-title">Universal Cross-Chain Settlement</h3>
+              <h3 className="security-card-title">Monotonic Rotation Replay Guard</h3>
               <p className="security-card-desc">
                 Enforces strictly monotonic <code>rotation_seq</code> on every ownership transfer. Past signatures cannot be replayed after a buyer takes ownership.
               </p>
@@ -97,7 +97,7 @@ export function SecurityShowcase({
                   <span className="dot dot-max" />
                 </div>
                 <div className="light-window-url num">
-                  route402.testnet/vaults/{selected.summary.upstream_slug || selected.summary.token_id}
+                  {selected.summary.collection_id} / {selected.summary.token_id}
                 </div>
               </div>
 
@@ -112,7 +112,13 @@ export function SecurityShowcase({
                   <div className="light-status-cluster">
                     <span className="light-verified-tag">
                       <CheckCircle2 size={12} style={{ color: '#027a48' }} />
-                      <span>Verified: keys: []</span>
+                      <span>
+                        {selected.accessKeyCount === 0
+                          ? 'Verified: keys: []'
+                          : selected.accessKeyCount === null
+                            ? 'Access keys: unverified'
+                            : `${selected.accessKeyCount} access key(s)`}
+                      </span>
                     </span>
                     <StatusPill status={selected.summary.status} />
                   </div>
@@ -128,8 +134,8 @@ export function SecurityShowcase({
                     </div>
                   </div>
                   <div className="light-delta-box num">
-                    <span className="light-delta-green">▲ +12.4%</span>
-                    <span className="light-sub-label">24h Volume</span>
+                    <span className="light-delta-green">${formatUsdc(selected.summary.price_per_call_usdc)}</span>
+                    <span className="light-sub-label">Current x402 rate</span>
                   </div>
                 </div>
 
@@ -168,10 +174,12 @@ export function SecurityShowcase({
                       </td>
                     </tr>
                     <tr>
-                      <th>Threat T-2 Status</th>
+                      <th>Pinned-Block T2 Proof</th>
                       <td>
                         <span style={{ color: selected.t2.ok ? '#027a48' : '#b54708', fontWeight: 600 }}>
-                          {selected.t2.ok ? '✓ Dual-RPC Proof Valid' : 'Unverified'}
+                          {selected.t2.ok
+                            ? `✓ ${selected.t2.verdict}`
+                            : `Unverified: ${selected.t2.verdict}`}
                         </span>
                       </td>
                     </tr>
