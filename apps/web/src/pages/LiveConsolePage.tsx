@@ -28,6 +28,7 @@ import {
   type OneClickQuoteResponse,
 } from '@route402/core';
 import { ChainIcon, Route402Mark } from '../components/ChainIcons';
+import { ConsoleNavRail, useNavScope, NAV_ITEMS, type NavScope } from '../components/ConsoleNavRail';
 import { StatusPill } from '../components/EndpointRoster';
 import { MintEndpointPanel } from '../components/MintEndpointPanel';
 import { LedgerAuditPanel } from '../components/LedgerAuditPanel';
@@ -147,16 +148,12 @@ export function LiveConsolePage({
   const [activeTab, setActiveTab] = useState<ConsoleTab>('wire');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [navScope, setNavScope] = useState<NavScope>('explore');
   const [copiedCurl, setCopiedCurl] = useState(false);
 
   const current = selected ?? entries[0] ?? null;
   const recentReceipts = current ? current.summary.recent_receipts.slice(-12) : [];
   const maxReceipt = Math.max(1, ...recentReceipts.map((r) => Number(r.amount)));
-
-  const categories = useMemo(
-    () => Array.from(new Set(entries.map((e) => e.summary.category))).sort(),
-    [entries],
-  );
 
   const keylessSummary = useMemo(() => {
     if (entries.length === 0) return 'No endpoints loaded';
@@ -168,9 +165,30 @@ export function LiveConsolePage({
     return '100% Zero-Keys';
   }, [entries]);
 
+  /**
+   * Per-scope endpoint counts, derived from live state. `My Vaults` is only
+   * meaningful once a wallet is connected, so it reports the connected
+   * account's endpoints and says so explicitly when there is no wallet.
+   */
+  const { counts: navCounts, matches: scopeMatches } = useNavScope(
+    entries,
+    walletAccountId,
+    navScope,
+  );
+
+  const scopeEntries = useMemo(
+    () => entries.filter(scopeMatches),
+    [entries, scopeMatches],
+  );
+
+  const categories = useMemo(
+    () => Array.from(new Set(scopeEntries.map((e) => e.summary.category))).sort(),
+    [scopeEntries],
+  );
+
   // Filtered endpoints in sidebar
   const filteredEntries = useMemo(() => {
-    return entries.filter((e) => {
+    return scopeEntries.filter((e) => {
       const s = e.summary;
       const matchesSearch =
         s.token_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -180,7 +198,7 @@ export function LiveConsolePage({
         categoryFilter === 'all' || s.category === categoryFilter;
       return matchesSearch && matchesCategory;
     });
-  }, [entries, searchQuery, categoryFilter]);
+  }, [scopeEntries, searchQuery, categoryFilter]);
 
   const handleCopyCurl = async () => {
     if (!current) return;
@@ -286,6 +304,14 @@ export function LiveConsolePage({
             PANE 1: LEFT SIDEBAR DIRECTORY (Vaults, Categories, Quick Search)
             ========================================================================= */}
         <aside className="console-sidebar-pane">
+          {/* Left rail scopes — each is a live filter over the endpoint list */}
+          <ConsoleNavRail
+            entries={entries}
+            walletAccountId={walletAccountId}
+            scope={navScope}
+            onScopeChange={setNavScope}
+          />
+
           {/* Search box */}
           <div className="console-search-box">
             <Search size={13} className="search-icon" />
@@ -306,7 +332,7 @@ export function LiveConsolePage({
                 className={`cat-chip ${categoryFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setCategoryFilter('all')}
               >
-                All ({entries.length})
+                All ({scopeEntries.length})
               </button>
             )}
             {categories.map((category) => (
@@ -329,6 +355,16 @@ export function LiveConsolePage({
                 <span>
                   Reading live endpoint state from{' '}
                   {sourceMode === 'sandbox' ? 'the gateway' : 'NEAR Testnet RPC'}…
+                </span>
+              </div>
+            )}
+            {!loading && entries.length > 0 && filteredEntries.length === 0 && (
+              <div className="console-loading-note">
+                <Layers size={14} />
+                <span>
+                  {navScope === 'vaults' && !walletAccountId
+                    ? 'Connect a NEAR wallet to see the endpoints it owns.'
+                    : `No endpoints match this ${NAV_ITEMS.find((i) => i.id === navScope)?.label.toLowerCase() ?? 'view'}.`}
                 </span>
               </div>
             )}

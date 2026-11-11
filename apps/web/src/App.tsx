@@ -711,6 +711,7 @@ export function App() {
         busyAction={busyAction}
         originChain={originChain}
         chains={CHAINS}
+        walletAccountId={walletAccountId}
         quoteResult={quoteResult}
         wireLog={wireLog}
         onSelectId={setSelectedId}

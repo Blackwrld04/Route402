@@ -1,10 +1,10 @@
+import { useMemo, useState } from 'react';
 import {
   Activity,
   ArrowDown,
   ArrowUpRight,
   CheckCircle2,
   ChevronRight,
-  Compass,
   Database,
   ExternalLink,
   Layers,
@@ -13,12 +13,12 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sliders,
-  Users,
   X,
   Zap,
 } from 'lucide-react';
 import { formatUsdc, type OneClickQuoteResponse } from '@route402/core';
 import { ChainIcon } from './ChainIcons';
+import { ConsoleNavRail, useNavScope, type NavScope } from './ConsoleNavRail';
 import { MountainBackdrop } from './MountainBackdrop';
 import type {
   DataSourceMode,
@@ -36,6 +36,7 @@ interface HeroSectionProps {
   busyAction: string | null;
   originChain: string;
   chains: OriginChainOption[];
+  walletAccountId: string | null;
   quoteResult: {
     originChain: string;
     targetVault: string;
@@ -59,6 +60,7 @@ export function HeroSection({
   busyAction,
   originChain,
   chains,
+  walletAccountId,
   quoteResult,
   wireLog,
   onSelectId,
@@ -68,7 +70,10 @@ export function HeroSection({
   onScrollToSecurity,
   onLaunchConsole,
 }: HeroSectionProps) {
-  const current = selected ?? entries[0] ?? null;
+  const [navScope, setNavScope] = useState<NavScope>('explore');
+  const { matches: scopeMatches } = useNavScope(entries, walletAccountId, navScope);
+  const scopedEntries = useMemo(() => entries.filter(scopeMatches), [entries, scopeMatches]);
+  const current = selected ?? scopedEntries[0] ?? entries[0] ?? null;
 
   return (
     <section id="top" className="hero-editorial-section">
@@ -152,33 +157,19 @@ CASH-FLOWING ACCOUNT-NFT PLATFORM ON NEAR
           <div className="terminal-three-col-layout">
             {/* 1. Left Sidebar Navigation & Vault Switcher */}
             <aside className="terminal-sidebar">
-              <div className="terminal-nav-group">
-                <button type="button" className="terminal-nav-item active">
-                  <Compass size={15} />
-                  <span>Explore</span>
-                </button>
-                <button type="button" className="terminal-nav-item">
-                  <Database size={15} />
-                  <span>Marketplace</span>
-                </button>
-                <button type="button" className="terminal-nav-item">
-                  <Layers size={15} />
-                  <span>My Vaults</span>
-                </button>
-                <button type="button" className="terminal-nav-item">
-                  <Activity size={15} />
-                  <span>Activity</span>
-                </button>
-                <button type="button" className="terminal-nav-item">
-                  <Users size={15} />
-                  <span>Community</span>
-                </button>
-              </div>
+              <ConsoleNavRail
+                entries={entries}
+                walletAccountId={walletAccountId}
+                scope={navScope}
+                onScopeChange={setNavScope}
+                className="terminal-nav-group"
+                itemClassName="terminal-nav-item"
+              />
 
               <div className="terminal-roster-subgroup">
                 <span className="terminal-roster-label">SOVEREIGN ENDPOINTS</span>
                 <div className="terminal-roster-list">
-                  {entries.map((e) => {
+                  {scopedEntries.map((e) => {
                     const isSel = (current?.summary.token_id ?? '') === e.summary.token_id;
                     return (
                       <button

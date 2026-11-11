@@ -86,7 +86,7 @@ export function TopNav({
             onClick={onToggleWallet}
           >
             <Wallet size={14} />
-            <span className="num">
+            <span className="num wallet-label">
               {walletAccountId
                 ? walletAccountId.length > 18
                   ? `${walletAccountId.slice(0, 8)}…${walletAccountId.slice(-6)}`
