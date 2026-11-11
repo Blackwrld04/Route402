@@ -123,7 +123,8 @@ CASH-FLOWING ACCOUNT-NFT PLATFORM ON NEAR
         </div>
 
         {/* Cointrix-Style 3-Part Floating Live Terminal Mockup (Exact Image 1 Architecture) */}
-        <div id="live-console-mockup" className="hero-mockup-frame">
+        <div className="hero-mockup-wrapper">
+          <div id="live-console-mockup" className="hero-mockup-frame">
           {/* Window Header Bar */}
           <div className="mockup-window-bar">
             <div className="mockup-dots">
@@ -431,6 +432,7 @@ CASH-FLOWING ACCOUNT-NFT PLATFORM ON NEAR
           </div>
         </div>
       </div>
-    </section>
-  );
+    </div>
+  </section>
+);
 }

@@ -517,6 +517,15 @@ pre {
   padding-bottom: 72px;
 }
 
+.hero-mockup-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-xl);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
 .hero-mockup-frame {
   --accent: #f7f6f3;
   --accent-ink: #000000;
@@ -528,6 +537,8 @@ pre {
   overflow: hidden;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.95);
   text-align: left;
+  min-width: 1040px;
+  width: 100%;
 }
 
 .hero-mockup-frame .btn-primary {
@@ -548,8 +559,8 @@ pre {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 16px;
+  flex-wrap: nowrap;
   padding: 14px 20px;
   background: #000000;
   border-bottom: 1px solid var(--line);
@@ -595,8 +606,8 @@ pre {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
-  min-width: 0;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .mockup-window-body {
@@ -2525,7 +2536,7 @@ pre {
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .stage-title-wrap {
@@ -2537,7 +2548,7 @@ pre {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .stage-asset-name {
@@ -2642,7 +2653,8 @@ pre {
   display: flex;
   align-items: center;
   gap: 20px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .sec-label {
@@ -2723,12 +2735,12 @@ pre {
   padding: 3px;
   border-radius: 6px;
   border: 1px solid var(--line);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .swap-chain-tab {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2862,34 +2874,7 @@ pre {
   text-align: center;
 }
 
-@media (max-width: 1080px) {
-  .terminal-three-col-layout {
-    flex-direction: column;
-  }
-  .terminal-sidebar,
-  .terminal-swap-panel {
-    width: 100%;
-  }
-  .terminal-sidebar {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .terminal-swap-panel {
-    border-left: 0;
-    border-top: 1px solid var(--line);
-  }
-  /* The mockup is a miniature of the full-screen console, which itself
-     collapses into a single column below 1200px. Match that here so the
-     landing preview behaves like the real console on narrow screens. */
-  .terminal-nav-group {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .terminal-nav-item {
-    flex: 0 1 auto;
-  }
-}
+
 
 /* =========================================================================
    LIGHT-MODE MACOS DASHBOARD (Matching Cointrix Image 2 Bottom Right)
