@@ -45,6 +45,7 @@ NEAR Protocol · NEP-591 Global Contracts · Rust Smart Contracts · TypeScript 
 ## Contents
 
 - [Why Route402 exists](#why-route402-exists)
+- [Who is it for?](#who-is-it-for)
 - [How it works](#how-it-works)
 - [The 3-Sided Market](#the-3-sided-market)
 - [6-Pillar core architectural subsystems](#6-pillar-core-architectural-subsystems)
@@ -84,6 +85,51 @@ Traditional API monetization and Web3 asset models suffer from three structural 
 | **Asset Transferability** | Painful manual company asset sale | Transferable, but yields no revenue | Atomic transfer of live revenue stream + treasury |
 | **Cross-Chain Access** | Single fiat currency rail | Single chain silo | Multi-chain: Base, Solana, Arbitrum, Ethereum, NEAR |
 | **Minting Overhead** | High SaaS setup & monthly fees | Full contract deploy (~`2 NEAR` per contract) | NEP-591 Global Contract: **`0.25 NEAR`** total mint cost |
+
+---
+
+## Who is it for?
+
+Route402 is purpose-built for three key stakeholders in the autonomous internet economy:
+
+### 1. Autonomous AI Agents (The Pay-Per-Query Consumers)
+- **Who they are:** Autonomous agent workflows running on LangChain, AutoGen, CrewAI, Claude Desktop (MCP), Cursor, OpenAI Swarm, or autonomous trading bots.
+- **Their Problem:** AI agents cannot open bank accounts, hold credit cards, pass CAPTCHAs, or commit to monthly recurring SaaS subscriptions. They need frictionless, machine-to-machine, pay-per-call micro-settlement.
+- **How Route402 Serves Them:**
+  - **Automated 402 Negotiation:** When an agent receives an `HTTP 402 Payment Required` header, the agent pays the exact sub-cent cost (e.g. `$0.05 USDC`) and immediately unlocks the payload.
+  - **Cross-Chain Native via 1Click:** Through **NEAR Intents 1Click**, agents can pay from their existing balances on **Base, Solana, Arbitrum, or Ethereum**. Solvers front the NEAR USDC in ~4 seconds with zero bridge risk for the caller.
+  - **Native MCP Tools:** Model Context Protocol tools expose typed functions directly into agent tool loops without manual API key wiring.
+
+### 2. API, AI Model & MCP Developers (The Creators & Sellers)
+- **Who they are:** Solo developers, data engineers, specialized model providers, and research collectives building:
+  - DeFi & MEV oracles (cross-chain solver spreads, basis arbitrage feeds).
+  - Specialized AI inference & confidential computation (TEE-attested risk scorers).
+  - High-value data scrapers, niche financial telemetry, and MCP tools.
+- **Their Problem:** Monetizing a backend traditionally requires integrating Stripe, managing user authentication tables, handling credit card chargebacks, paying high merchant fees, and excluding global unbanked users.
+- **How Route402 Serves Them:**
+  - **Instant Deployment:** Mint a sovereign endpoint for **`0.25 NEAR` (~$1)** with zero backend payment logic.
+  - **Direct Self-Custody:** 100% of micro-payments settle directly into the endpoint's keyless sub-account vault (`keys: []`). No platform takes custodial custody or delays payouts.
+  - **Zero Maintenance:** The reverse proxy handles discovery (`/.well-known/x402`), payment verification, rate limiting, and challenge headers automatically.
+
+### 3. Digital Asset Investors & DeFi Marketplaces (The Cash-Flow Buyers)
+- **Who they are:** Web3 funds, DAO treasuries, yield farmers, and digital asset flippers looking for real-world, cash-flowing digital properties.
+- **Their Problem:** Traditional web APIs cannot be bought or sold without legal escrow contracts, manual company equity transfers, and risky API key / AWS credential handovers.
+- **How Route402 Serves Them:**
+  - **The API is the NFT:** Tokenized under the House of Stake `sharded-item-1.0.0` standard, the endpoint sub-account and its accrued treasury **are an NFT**.
+  - **Atomic Escrow Handover:** Buy cash-flowing APIs in a single transaction on NEAR. When the transaction executes, the contract atomically transfers the sub-account ownership, live revenue stream, and accumulated USDC treasury to the buyer.
+  - **Guaranteed Protection:** The seller is cryptographically blocked from draining funds mid-sale ([Threat T-2](#formal-threat-model-matrix-t-1--t-6)), while incoming customer payments continue accumulating uninterrupted ([Threat T-6](#formal-threat-model-matrix-t-1--t-6)).
+
+---
+
+### Real-World Lifecycle Example
+
+| Step | Participant | Action | Result |
+| :--- | :--- | :--- | :--- |
+| **1. Mint** | Developer Alice | Mints `alpha-signal.r402-reg-v1.testnet` on Route402 for `0.25 NEAR` | Creates keyless sub-account with immutable NEP-591 code. |
+| **2. Monetize** | AI Trading Agents | 1,000 agents query the feed daily, paying `$0.05` via Base/Solana 1Click | Sub-account vault accumulates `$50.00 USDC/day` with zero fees. |
+| **3. List** | Developer Alice | Lists `alpha-signal` on Route402 Escrow for `250 NEAR` | Vault enters `Frozen` state; Alice cannot drain funds (`T-2`). |
+| **4. Inflow** | AI Agents | Agents continue calling the API uninterrupted | Vault continues accumulating `$0.05` micro-payments (`T-6`). |
+| **5. Buyout** | Investor Bob | Deposits `250 NEAR` to buy the Account-NFT | Atomic handover: Alice receives `250 NEAR`; Bob now owns the endpoint and all accrued treasury. |
 
 ---
 
